@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include "detailswindow.h"
-#include "manageproductwindow.h"
+#include "bartender.h"
 
 
 namespace Ui {
@@ -15,13 +15,13 @@ class EditWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit EditWindow(QWidget *parent = 0);
+    explicit EditWindow(Bartender* bartender, QWidget *parent = 0);
     ~EditWindow();
 
 private:
     Ui::EditWindow *ui;
     DetailsWindow* _detailsWindow;
-    ManageProductWindow* _manageProductWindow;
+    Bartender* _bartender;
 };
 
 #endif // EDITWINDOW_H

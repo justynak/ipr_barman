@@ -7,6 +7,7 @@
 #include "editwindow.h"
 #include "local.h"
 
+
 namespace Ui {
 class MainWindow;
 }
@@ -21,10 +22,15 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    Bartender _bartender;
+    Bartender* _bartender;
     LoginWindow* _loginWindow;
     EditWindow* _editWindow;
     Local local;
+
+private slots:
+    void SetLoggingWindow();
+    void SetEditWindow(QString b);
+
 };
 
 #endif // MAINWINDOW_H

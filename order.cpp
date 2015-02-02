@@ -12,7 +12,7 @@ Order::Order(QString orderNumber)
 
 Order::~Order()
 {
-    _productList.clear();
+    //_productList.clear();
 }
 
 void Order::SetProductList(QList<Product> list)
@@ -34,6 +34,14 @@ void Order::RemoveProduct(Product p)
 void Order::ChangeProductNumber(Product p, int number)
 {
     uint occurence = _productList.indexOf(p);
-    if(occurence >=0) _productList[occurence].setNumber(number);
+    if(occurence >=0) _productList[occurence].SetNumber(number);
+}
+
+bool Order::operator ==(Order o1)
+{
+    if(o1.GetOrderNumber() == this->_orderNumber)
+        return true;
+    else
+        return false;
 }
 

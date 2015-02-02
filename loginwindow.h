@@ -3,6 +3,9 @@
 
 #include <QWidget>
 #include "loginscanner.h"
+#include "bartender.h"
+
+
 namespace Ui {
 class LoginWindow;
 }
@@ -15,9 +18,16 @@ public:
     explicit LoginWindow(QWidget *parent = 0);
     ~LoginWindow();
 
+signals:
+    void logged(QString bartenderNumber);
+
+private slots:
+    void on_buttonLogin_clicked();
+
 private:
     Ui::LoginWindow *ui;
     LoginScanner _loginScanner;
+
 };
 
 #endif // LOGINWINDOW_H

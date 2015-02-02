@@ -1,15 +1,16 @@
 #ifndef CATEGORYLIST_H
 #define CATEGORYLIST_H
-#include "product.h"
+
 #include <QList>
 #include "databaseconnector.h"
+//#include "product.h"
 
 class CategoryList
 {
 private:
+    DatabaseConnector *db;
     QList<QString> _categories;
-    QList<Product> _productsInCategory;
-    DatabaseConnector* _db;
+    //QList<Product> _productsInCategory;
 
 
 public:

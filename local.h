@@ -2,6 +2,7 @@
 #define LOCAL_H
 #include <QString>
 
+
 class Local
 {
 private:
@@ -9,6 +10,7 @@ private:
 
 public:
     Local();
+    Local(QString name): _name(name) {}
     ~Local();
 
     void SetName(QString name){_name = name;}

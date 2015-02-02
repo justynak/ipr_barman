@@ -2,6 +2,7 @@
 #define DETAILSWINDOW_H
 
 #include <QWidget>
+#include "order.h"
 
 namespace Ui {
 class DetailsWindow;
@@ -17,6 +18,10 @@ public:
 
 private:
     Ui::DetailsWindow *ui;
+
+signals:
+    void closeBill();
+
 };
 
 #endif // DETAILSWINDOW_H

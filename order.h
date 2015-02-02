@@ -22,6 +22,11 @@ public:
     void RemoveProduct(Product p);
     void ChangeProductNumber(Product p, int number);
 
+
+    QString GetOrderNumber(){return _orderNumber;}
+
+    bool operator ==(Order o1);
+
 };
 
 #endif // ORDER_H

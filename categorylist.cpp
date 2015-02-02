@@ -2,7 +2,7 @@
 
 CategoryList::CategoryList()
 {
-    _db = DatabaseConnector::GetInstance();
+    db = DatabaseConnector::GetInstance();
 }
 
 CategoryList::~CategoryList()
@@ -10,13 +10,20 @@ CategoryList::~CategoryList()
 
 }
 
-bool CategoryList::GetCategories()
+bool CategoryList::GetCategoriesFromDB()
 {
-
+    _categories = db->GetCategories();
+    return true;
 }
 
-bool CategoryList::GetProducts()
-{
 
+bool CategoryList::GetProductsFromDB()
+{
+    return true;
+}
+
+QList<QString> CategoryList::GetCategories()
+{
+    return _categories;
 }
 

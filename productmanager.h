@@ -3,20 +3,26 @@
 #include "categorylist.h"
 #include "product.h"
 #include "order.h"
+#include "databaseconnector.h"
 
 class ProductManager
 {
 
 private:
-    CategoryList _categoryList;
-    Product _productSelected;
-
+    CategoryList* _categoryList;
+    Product* _productSelected;
+    QList<Product> _availableProducts;
+    DatabaseConnector *db;
 
 public:
     ProductManager();
     ~ProductManager();
-    AddProduct(Order o);
-    ChangeProductNumber(Order o, Product p, uint newNumber);
+    void AddProduct(Order o);
+    void SetProducts(QString category);
+    void ChangeProductNumber(Order o, Product p, uint newNumber);
+
+    QList<QString> GetCategoryList();
+    QList<Product> GetAvailableProducts(QString category);
 };
 
 #endif // PRODUCTMANAGER_H

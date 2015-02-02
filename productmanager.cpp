@@ -2,21 +2,40 @@
 
 ProductManager::ProductManager()
 {
-
+    db = DatabaseConnector::GetInstance();
+    _categoryList = new CategoryList();
 }
 
 ProductManager::~ProductManager()
 {
-
+    delete _categoryList;
 }
 
-ProductManager::AddProduct(Order o)
+void ProductManager::AddProduct(Order o)
 {
-    o.AddProduct(_productSelected);
+    o.AddProduct(*_productSelected);
 }
 
-ProductManager::ChangeProductNumber(Order o, Product p, uint newNumber)
+void ProductManager::SetProducts(QString category)
+{
+    _availableProducts = db->GetProductsFromCategory(category);
+    _productSelected = &(_availableProducts[0]);
+}
+
+void ProductManager::ChangeProductNumber(Order o, Product p, uint newNumber)
 {
     o.ChangeProductNumber(p, newNumber);
+}
+
+QList<QString> ProductManager::GetCategoryList()
+{
+    return _categoryList->GetCategories();
+}
+
+QList<Product> ProductManager::GetAvailableProducts(QString category)
+{
+    QList<Product> list;
+
+    return list;
 }
 

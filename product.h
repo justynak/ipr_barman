@@ -14,9 +14,15 @@ public:
     Product(QString name, uint number, double price) : _name(name), _number(number), _price(price) {}
     ~Product();
 
-    bool setName(QString name) { _name = name; return true;}
-    bool setNumber(uint number) {_number = number; return true;}
-    bool setPrice(double price) {_price = price; return true;}
+    bool SetName(QString name) { _name = name; return true;}
+    bool SetNumber(uint number) {_number = number; return true;}
+    bool SetPrice(double price) {_price = price; return true;}
+
+    bool operator ==(Product p1);
+
+    QString GetName(){return _name;}
+    uint GetNumber(){return _number;}
+    double GetPrice(){return _price;}
 };
 
 #endif // PRODUCT_H
