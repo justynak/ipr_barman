@@ -2,7 +2,8 @@
 
 Order::Order()
 {
-
+    _productList = new QList<Product>;
+    _orderNumber = "";
 }
 
 Order::Order(QString orderNumber)

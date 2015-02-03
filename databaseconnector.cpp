@@ -285,7 +285,8 @@ bool DatabaseConnector::CreateOrder(QString bartenderNumber, Order* newOrder)
         command = QString("SELECT MAX(nr_zamowienia) FROM d_zamowienie");
         query.exec(command);
         query.first();
-        newOrder->SetOrderNumber(query.value(0).toString());
+        QString *number = new QString(query.value(0).toString());
+        newOrder->SetOrderNumber(*number);
     }
     return ok;
 }

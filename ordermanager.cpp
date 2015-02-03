@@ -36,6 +36,7 @@ bool OrderManager::SetSelectedOrder(QString name)
 bool OrderManager::CreateOrder(QString bartenderNumber)
 {
     _orderList->AddOrder(bartenderNumber);
+    _selectedOrder = &_orderList->GetLast();
     return true;
 }
 
