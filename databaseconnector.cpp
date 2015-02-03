@@ -194,7 +194,7 @@ bool DatabaseConnector::RemoveProductFromOrder(QString billNumber, Product p)
     q.exec(command);
     q.finish();
 
-    command = QObject::tr("update `m_skladnik` set `ilosc` = ilosc + %1"
+    command = QObject::tr("update `m_skladnik` set `ilosc` = `ilosc` + %1 "
                  "where `nazwa` in "
                  "(select `m_Skladnik_nazwa` from `m_artykul_skladnik` "
                  "where `m_Artykul_nazwa` = \"%2\" )").arg(p.GetNumber()).arg(p.GetName());
