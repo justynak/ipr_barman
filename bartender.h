@@ -32,11 +32,12 @@ public:
     bool RemoveProduct(Product p);
     bool ChangeProductNumber(Product p);
 
-    bool RemoveOrder(QString billNumber);
+    bool RemoveOrder();
     bool AddOrder();
 
+    bool SetOrder(QString billNumber);
     QList<QString> GetOrders();
-    QList<Product> GetProductsFromOrder(QString billNumber);
+    QList<Product> GetProductsFromOrder();
 };
 
 #endif // BARTENDER_H

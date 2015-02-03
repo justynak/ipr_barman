@@ -22,7 +22,8 @@ public:
     OrderManager(QString bartenderNumber);
     ~OrderManager();
 
-    bool SetSelectedOrder(Order* o) {_selectedOrder = o;}
+    bool SetSelectedOrder(Order* o) {_selectedOrder = o; return true;}
+    bool SetSelectedOrder(QString name);
 
     bool CreateOrder();
     bool DeleteOrder();

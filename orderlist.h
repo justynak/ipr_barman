@@ -2,12 +2,12 @@
 #define ORDERLIST_H
 #include <QList>
 #include "order.h"
-
+#include "databaseconnector.h"
 
 class OrderList
 {
 public:
-    OrderList();
+    OrderList(QString bartenderNumber);
     void AddOrder(Order o);
     void RemoveOrder(Order o);
     ~OrderList();
@@ -15,10 +15,12 @@ public:
     void SetOrderList(QList<Order>list){ _list.clear(); _list = list;}
 
     Order operator[](int i);
-    Order getOrder(int i){return _list[i];}
+    Order GetOrderByName(QString billName);
+    Order GetOrder(int i){return _list[i];}
 
 private:
     QList<Order> _list;
+    DatabaseConnector *db;
 
 };
 

@@ -9,7 +9,7 @@ OrderDetails::OrderDetails(Order *o)
 {
     _order = o;
 
-    QList<Product>list =  _order->GetProductList();
+    QList<Product>list =  *(_order->GetProductList());
 
     foreach(Product p, list)
     {

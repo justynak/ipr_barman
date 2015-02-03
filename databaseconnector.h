@@ -14,7 +14,7 @@
 class DatabaseConnector
 {
 private:
-    DatabaseConnector() { db = QSqlDatabase::addDatabase("QMYSQL"); }
+    DatabaseConnector() { db = QSqlDatabase::addDatabase("QMYSQL"); this->connect();}
     DatabaseConnector(const DatabaseConnector &);
     DatabaseConnector& operator=(const DatabaseConnector&);
     ~DatabaseConnector() {}
@@ -40,7 +40,7 @@ public:
     QString GetBartenderName(QString number);
     QString GetBartenderSurame(QString number);
 
-    QList<Product> GetProductsFromBill(QString billNumber);
+    QList<Product>* GetProductsFromBill(QString billNumber);
     QList<Order> GetOrders(QString bartenderNumber);
 
     bool RemoveProductFromOrder(QString billNumber, Product p);

@@ -6,7 +6,7 @@ LoginWindow::LoginWindow(QWidget *parent) :
     ui(new Ui::LoginWindow)
 {
     ui->setupUi(this);
-    connect(this->ui->buttonLogin, &QPushButton::clicked, this, &LoginWindow::on_buttonLogin_clicked);
+    //connect(this->ui->buttonLogin, &QPushButton::clicked, this, &LoginWindow::on_buttonLogin_clicked);
 }
 
 LoginWindow::~LoginWindow()

@@ -63,7 +63,7 @@ QList<QString> DatabaseConnector::GetCategories()
 
 bool DatabaseConnector::BartenderExists(QString number)
 {
-    this->connect();
+    //this->connect();
 
     QSqlQuery q;
     QString command = QObject::tr("SELECT * FROM  d_barman WHERE pesel = '%1' ").arg(number);
@@ -76,7 +76,7 @@ bool DatabaseConnector::BartenderExists(QString number)
 
 QString DatabaseConnector::GetRandomBartender()
 {
-    this->connect();
+    //this->connect();
 
     QSqlQuery q;
     QString command = QObject::tr("SELECT pesel FROM  d_barman");
@@ -87,6 +87,7 @@ QString DatabaseConnector::GetRandomBartender()
     while(q.next())
         list.append(q.value(0).toString());
 
+    qsrand(QTime::currentTime().msec());
     uint max = list.size();
     uint i = qrand() % max;
 
@@ -95,7 +96,7 @@ QString DatabaseConnector::GetRandomBartender()
 
 QString DatabaseConnector::GetBartenderName(QString number)
 {
-    this->connect();
+    //this->connect();
 
     QSqlQuery q;
     QString command = QObject::tr("SELECT imie FROM  d_barman WHERE pesel = '%1'").arg(number);
@@ -109,7 +110,7 @@ QString DatabaseConnector::GetBartenderName(QString number)
 
 QString DatabaseConnector::GetBartenderSurame(QString number)
 {
-    this->connect();
+    //this->connect();
 
     QSqlQuery q;
     QString command = QObject::tr("SELECT nazwisko FROM  d_barman WHERE pesel = '%1'").arg(number);
@@ -121,23 +122,36 @@ QString DatabaseConnector::GetBartenderSurame(QString number)
     return surname;
 }
 
-QList<Product> DatabaseConnector::GetProductsFromBill(QString billNumber)
+QList<Product>* DatabaseConnector::GetProductsFromBill(QString billNumber)
 {
-    this->connect();
+    //this->connect();
 
     QSqlQuery q;
-    QString command = QObject::tr(" FROM `d_zamowienie_artykul` WHERE pesel = '%1'").arg(billNumber);
+    QString command = QObject::tr("select d_nazwa_artykulu, ilosc "
+                                  "from d_zamowienie_artykul "
+                                  "where d_numer_zamowienia =%1").arg(billNumber);
     q.exec(command);
 
-    QList<Product> list;
+    QList<Product>* list = new QList<Product>;
 
     while(q.next())
     {   //nazwa, l szt, cena
         Product p;
         p.SetName(q.value(0).toString());
         p.SetNumber(q.value(1).toInt());
-        p.SetPrice(q.value(2).toDouble());
-        list.append(p);
+
+        //this->connect();
+
+        QSqlQuery query;
+        QString command2 = QObject::tr("select cena_aktualna from m_artykul where nazwa = '%1' ").arg(q.value(0).toString());
+        query.exec(command2);
+        query.first();
+        double price = query.value(0).toDouble();
+        query.finish();
+
+        p.SetPrice(price);
+
+        list->append(p);
     }
 
     return list;
@@ -145,7 +159,7 @@ QList<Product> DatabaseConnector::GetProductsFromBill(QString billNumber)
 
 QList<Order> DatabaseConnector::GetOrders(QString bartenderNumber)
 {
-    this->connect();
+    //this->connect();
 
     QSqlQuery q;
     QString command = QObject::tr("SELECT nr_zamowienia FROM  d_zamowienie WHERE d_barman_pesel = '%1'").arg(bartenderNumber);
@@ -168,7 +182,7 @@ QList<Order> DatabaseConnector::GetOrders(QString bartenderNumber)
 
 bool DatabaseConnector::RemoveProductFromOrder(QString billNumber, Product p)
 {
-    this->connect();
+    //this->connect();
 
     QSqlQuery q;
     QString command = QObject::tr("delete from`d_zamowienie_artykul` "
@@ -188,7 +202,7 @@ bool DatabaseConnector::RemoveProductFromOrder(QString billNumber, Product p)
 
 bool DatabaseConnector::AddProductToOrder(QString billNumber, Product p)
 {
-    this->connect();
+    //this->connect();
 
     QSqlQuery q;
     QString command = QObject::tr("insert into `d_zamowienie_artykul` (`d_numer_zamowienia`, `d_nazwa_artykulu`, `ilosc`)"
@@ -206,7 +220,7 @@ bool DatabaseConnector::AddProductToOrder(QString billNumber, Product p)
 
 bool DatabaseConnector::ChangeProductNumber(QString billNumber, Product p)
 {
-    this->connect();
+    //this->connect();
     int available;
 
     QSqlQuery q;
@@ -230,7 +244,7 @@ bool DatabaseConnector::ChangeProductNumber(QString billNumber, Product p)
 
 bool DatabaseConnector::CloseOrder(QString billNumber)
 {
-    this->connect();
+    //this->connect();
     QSqlQuery q;
     QString command = QObject::tr("UPDATE d_zamowienie SET zamkniety= '1' "
                                   "WHERE nr_zamowienia = %1").arg(billNumber);
@@ -239,7 +253,7 @@ bool DatabaseConnector::CloseOrder(QString billNumber)
 
 bool DatabaseConnector::RemoveOrder(QString billNumber)
 {
-    this->connect();
+    //this->connect();
 
     QSqlQuery query;
     QString command = QObject::tr("delete from `d_zamowienie_artykul` where d_numer_zamowienia =%1").arg(billNumber);

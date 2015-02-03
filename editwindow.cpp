@@ -1,6 +1,16 @@
 #include "editwindow.h"
 #include "ui_editwindow.h"
 
+
+
+#define COL_PRODUCT     0
+#define COL_ADD_ONE     1
+#define COL_REMOVE_ONE  3
+#define COL_NUMBER      2
+#define COL_PRICE       4
+#define COL_DELETE      5
+
+
 EditWindow::EditWindow(Bartender *bartender, QWidget *parent) :
     QWidget(parent), _bartender(bartender),
     ui(new Ui::EditWindow)
@@ -16,9 +26,74 @@ EditWindow::EditWindow(Bartender *bartender, QWidget *parent) :
         ui->box_bills->addItem(tr("%1").arg(number));
     }
 
+    ui->product_list->setRowCount(0);
+    ui->product_list->setColumnCount(6);
+    ui->product_list->setColumnWidth(COL_PRODUCT, 352);
+    ui->product_list->setColumnWidth(COL_ADD_ONE, 50);
+    ui->product_list->setColumnWidth(COL_REMOVE_ONE, 50);
+    ui->product_list->setColumnWidth(COL_DELETE, 150);
+    QStringList a;
+    a<<"Produkt"<<""<<"Ilość"<<""<<"Cena"<<"Usuń";
+    ui->product_list->setHorizontalHeaderLabels(a);
+
+    //connects
+    connect(ui->box_bills, SIGNAL(activated(QString)), this, SLOT(on_box_bills_activated(QString)));
+    connect(ui->product_list, SIGNAL(cellClicked(int,int)), this, SLOT(on_product_list_cellActivated(int,int)));
 }
 
 EditWindow::~EditWindow()
 {
     delete ui;
+}
+
+void EditWindow::on_box_bills_activated(const QString &arg1)
+{
+    ui->product_list->clear();
+
+
+    ui->product_list->setRowCount(0);
+    ui->product_list->setColumnCount(6);
+    ui->product_list->setColumnWidth(COL_PRODUCT, 352);
+    ui->product_list->setColumnWidth(COL_ADD_ONE, 50);
+    ui->product_list->setColumnWidth(COL_REMOVE_ONE, 50);
+    ui->product_list->setColumnWidth(COL_DELETE, 150);
+    QStringList a;
+    a<<"Produkt"<<""<<"Ilość"<<""<<"Cena"<<"Usuń";
+    ui->product_list->setHorizontalHeaderLabels(a);
+
+
+    //make non-editable
+    _bartender->SetOrder(arg1);
+
+    QList<Product> list = _bartender->GetProductsFromOrder();
+
+    for(int i=0; i<list.count(); ++i)
+    {
+        QTableWidgetItem* item[6];
+        for(int k=0; k<6; ++k)
+        {
+            item[k] = new QTableWidgetItem();
+            item[k]->setFlags(item[k]->flags() ^ Qt::ItemIsEditable);
+        }
+
+        ui->product_list->insertRow(i);
+        item[COL_PRODUCT]->setText(list[i].GetName());
+        item[COL_ADD_ONE]->setText(tr("+"));
+        item[COL_NUMBER]->setText(tr("%1").arg(list[i].GetNumber()));
+        item[COL_REMOVE_ONE]->setText(tr("-"));
+        item[COL_PRICE]->setText(tr("%1").arg(list[i].GetPrice()));
+        item[COL_DELETE]->setText(tr("X"));
+
+        for(unsigned int j=0; j<6; ++j)
+        {
+            ui->product_list->setItem(i, j, item[j]);
+        }
+    }
+}
+
+
+
+void EditWindow::on_product_list_cellActivated(int row, int column)
+{
+
 }

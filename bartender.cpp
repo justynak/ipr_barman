@@ -47,7 +47,7 @@ bool Bartender::ChangeProductNumber(Product p)
     return true;
 }
 
-bool Bartender::RemoveOrder(QString billNumber)
+bool Bartender::RemoveOrder()
 {
     _oManager->DeleteOrder();
     return true;
@@ -59,14 +59,19 @@ bool Bartender::AddOrder()
     return true;
 }
 
+bool Bartender::SetOrder(QString billNumber)
+{
+    _oManager->SetSelectedOrder(billNumber);
+    return true;
+}
+
 QList<QString> Bartender::GetOrders()
 {
     return _oManager->GetOrders();
 }
 
-QList<Product> Bartender::GetProductsFromOrder(QString billNumber)
+QList<Product> Bartender::GetProductsFromOrder()
 {
-    QList<Product> list;
-    return list;
+    return _oManager->GetProducts();
 }
 

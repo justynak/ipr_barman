@@ -5,11 +5,10 @@ OrderManager::OrderManager(QString bartenderNumber)
     db = DatabaseConnector::GetInstance();
 
     //initialize orderList
-    _orderList = new OrderList();
-    _orderList->SetOrderList(db->GetOrders(bartenderNumber));
+    _orderList = new OrderList(bartenderNumber);
 
     //initialize selected order
-    _selectedOrder = &(_orderList->getOrder(0));
+    _selectedOrder = &(_orderList->GetOrder(0));
 
     _pManager = new ProductManager();
 }
@@ -18,6 +17,20 @@ OrderManager::~OrderManager()
 {
     delete _orderList;
     delete _pManager;
+}
+
+bool OrderManager::SetSelectedOrder(QString name)
+{
+    Order* o = &(_orderList->GetOrderByName(name));
+
+    if(o != NULL)
+    {
+        _selectedOrder = o;
+        QList<Product>* p = db->GetProductsFromBill(name);
+        _selectedOrder->SetProductList(p);
+        return true;
+    }
+    else return false;
 }
 
 bool OrderManager::CreateOrder()
@@ -74,7 +87,7 @@ QList<QString> OrderManager::GetOrders()
 
 QList<Product> OrderManager::GetProducts()
 {
-    QList<Product> list;
-    return list;
+    QList<Product> p = *(_selectedOrder->GetProductList());
+    return p;
 }
 

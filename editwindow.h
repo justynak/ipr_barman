@@ -18,6 +18,10 @@ public:
     explicit EditWindow(Bartender* bartender, QWidget *parent = 0);
     ~EditWindow();
 
+private slots:
+    void on_box_bills_activated(const QString &arg1);
+    void on_product_list_cellActivated(int row, int column);
+
 private:
     Ui::EditWindow *ui;
     DetailsWindow* _detailsWindow;
