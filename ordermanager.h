@@ -39,6 +39,7 @@ public:
 
     QList<QString> GetOrders();
     QList<Product> GetProducts();
+    QString GetSelectedOrder(){return _selectedOrder->GetOrderNumber();}
 };
 
 #endif // ORDERMANAGER_H

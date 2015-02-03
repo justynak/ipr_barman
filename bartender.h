@@ -39,6 +39,8 @@ public:
     QList<QString> GetOrders();
     QList<Product> GetProductsFromOrder();
 
+    QString GetSelectedOrder(){return _oManager->GetSelectedOrder();}
+
 };
 
 #endif // BARTENDER_H

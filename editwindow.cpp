@@ -71,6 +71,7 @@ void EditWindow::on_box_bills_activated(const QString &arg1)
         _bartender->SetOrder(arg1);
     }
 
+    ui->label_bill_number->setText(tr("Numer rachunku: %1 ").arg(_bartender->GetSelectedOrder()));
     QList<Product> list = _bartender->GetProductsFromOrder();
 
     for(int i=0; i<list.count(); ++i)

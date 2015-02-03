@@ -29,11 +29,11 @@ Order OrderList::operator[](int i)
     return _list[i];
 }
 
-Order OrderList::GetOrderByName(QString billName)
+Order* OrderList::GetOrderByName(QString billName)
 {
     Order o(billName);
 
     int i = _list.lastIndexOf(o);
-    return _list[i];
+    return &(_list[i]);
 }
 

@@ -15,28 +15,25 @@ OrderManager::OrderManager(QString bartenderNumber)
 
 OrderManager::~OrderManager()
 {
-    delete _orderList;
+    if(_orderList != NULL) delete _orderList;
     delete _pManager;
 }
 
 bool OrderManager::SetSelectedOrder(QString name)
 {
-    Order* o = &(_orderList->GetOrderByName(name));
+    Order* o = _orderList->GetOrderByName(name);
 
-    if(o != NULL)
-    {
-        _selectedOrder = o;
-        QList<Product>* p = db->GetProductsFromBill(name);
-        _selectedOrder->SetProductList(p);
-        return true;
-    }
-    else return false;
+    _selectedOrder = o;
+    QList<Product>* p = db->GetProductsFromBill(name);
+    _selectedOrder->SetProductList(p);
+
+    return true;
 }
 
 bool OrderManager::CreateOrder(QString bartenderNumber)
 {
     _orderList->AddOrder(bartenderNumber);
-    _selectedOrder = &_orderList->GetLast();
+    _selectedOrder = _orderList->GetLast();
     return true;
 }
 
