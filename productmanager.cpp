@@ -11,10 +11,10 @@ ProductManager::~ProductManager()
     delete _categoryList;
 }
 
-void ProductManager::AddProduct(Order o)
-{
-    o.AddProduct(*_productSelected);
-}
+//void ProductManager::AddProduct(Order o)
+//{
+    //o.AddProduct(*_productSelected);
+//}
 
 void ProductManager::SetProducts(QString category)
 {
@@ -35,7 +35,7 @@ QList<QString> ProductManager::GetCategoryList()
 QList<Product> ProductManager::GetAvailableProducts(QString category)
 {
     QList<Product> list;
-
+    list = db->GetProductsFromCategory(category);
     return list;
 }
 

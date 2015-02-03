@@ -47,8 +47,9 @@ bool OrderManager::AddProduct()
     return true;
 }
 
-bool OrderManager::ChangeProductNumber()
+bool OrderManager::ChangeProductNumber(Product *p, int newNumber)
 {
+    _selectedOrder->ChangeProductNumber(*p, newNumber);
     return true;
 }
 

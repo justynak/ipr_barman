@@ -23,6 +23,9 @@ private:
 
 signals:
     void managerClosed();
+    void productSelected(Product* p);
+
+
 private slots:
     void on_box_categories_activated(const QString &arg1);
     void on_box_products_activated(const QString &arg1);

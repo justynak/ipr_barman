@@ -30,7 +30,7 @@ public:
 
     bool AddProduct(Product p);
     bool RemoveProduct(Product p);
-    bool ChangeProductNumber(Product p);
+    bool ChangeProductNumber(Product p, int newNumber);
 
     bool RemoveOrder();
     bool AddOrder();
@@ -40,6 +40,7 @@ public:
     QList<Product> GetProductsFromOrder();
 
     QString GetSelectedOrder(){return _oManager->GetSelectedOrder();}
+    ProductManager* GetProductManager(){return _oManager->GetProductManager();}
 
 };
 

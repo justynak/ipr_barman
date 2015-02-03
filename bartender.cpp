@@ -41,9 +41,9 @@ bool Bartender::RemoveProduct(Product p)
     return true;
 }
 
-bool Bartender::ChangeProductNumber(Product p)
+bool Bartender::ChangeProductNumber(Product p, int newNumber)
 {
-    _oManager->ChangeProductNumber();
+    _oManager->ChangeProductNumber(&p, newNumber);
     return true;
 }
 

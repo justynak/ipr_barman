@@ -28,7 +28,7 @@ public:
     bool CreateOrder(QString bartenderNumber);
     bool DeleteOrder();
     bool AddProduct();
-    bool ChangeProductNumber();
+    bool ChangeProductNumber(Product* p, int newNumber);
 
     bool DeleteProduct();
     bool ScanCustomer();
@@ -40,6 +40,7 @@ public:
     QList<QString> GetOrders();
     QList<Product> GetProducts();
     QString GetSelectedOrder(){return _selectedOrder->GetOrderNumber();}
+    ProductManager* GetProductManager(){return _pManager;}
 };
 
 #endif // ORDERMANAGER_H
