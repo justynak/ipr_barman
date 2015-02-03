@@ -3,6 +3,7 @@
 CategoryList::CategoryList()
 {
     db = DatabaseConnector::GetInstance();
+    this->GetCategoriesFromDB();
 }
 
 CategoryList::~CategoryList()

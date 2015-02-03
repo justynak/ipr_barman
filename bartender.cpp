@@ -29,7 +29,7 @@ void Bartender::SetSurname()
     _name = db->GetBartenderSurame(_pesel);
 }
 
-bool Bartender::AddProduct(Product p)
+bool Bartender::AddProduct()
 {
     _oManager->AddProduct();
     return true;

@@ -28,12 +28,13 @@ public:
     QString GetPesel(){return _pesel;}
     QString GetSurname(){return _surname;}
 
-    bool AddProduct(Product p);
+    bool AddProduct();
     bool RemoveProduct(Product p);
     bool ChangeProductNumber(Product p, int newNumber);
 
     bool RemoveOrder();
     bool AddOrder();
+    bool SetSelectedProduct(Product* p) {_oManager->SetSelectedProduct(p); return true;}
 
     bool SetOrder(QString billNumber);
     QList<QString> GetOrders();

@@ -2,13 +2,15 @@
 #define DETAILSWINDOW_H
 
 #include <QWidget>
+#include <QDialog>
+
 #include "order.h"
 
 namespace Ui {
 class DetailsWindow;
 }
 
-class DetailsWindow : public QWidget
+class DetailsWindow : public QDialog
 {
     Q_OBJECT
 

@@ -4,6 +4,7 @@ ProductManager::ProductManager()
 {
     db = DatabaseConnector::GetInstance();
     _categoryList = new CategoryList();
+    _productSelected = new Product();
 }
 
 ProductManager::~ProductManager()
@@ -34,8 +35,26 @@ QList<QString> ProductManager::GetCategoryList()
 
 QList<Product> ProductManager::GetAvailableProducts(QString category)
 {
-    QList<Product> list;
-    list = db->GetProductsFromCategory(category);
-    return list;
+    _availableProducts = db->GetProductsFromCategory(category);
+    return _availableProducts;
+}
+
+Product *ProductManager::GetProductByName(QString name)
+{
+    int occurence = -1;
+    bool exists = false;
+
+    foreach(Product p, _availableProducts)
+    {
+        ++occurence;
+        if(p.GetName() == name)
+        {
+            exists = true;
+            break;
+        }
+    }
+
+    if(exists) return &(_availableProducts[occurence]);
+    else return NULL;
 }
 

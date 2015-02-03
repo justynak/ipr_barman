@@ -25,11 +25,11 @@ QList<Product> DatabaseConnector::GetProductsFromCategory(QString category)
     QSqlQuery q;
 
     QString command = QString("select a.nazwa, cena_aktualna, min(s.ilosc) from d_bar_artykul "
-                              "join m_artykul as a on a.nazwa = d_bar_artykul.d_numer_artykulu"
+                              "join m_artykul as a on a.nazwa = d_bar_artykul.d_numer_artykulu "
                               "join m_artykul_skladnik as a_s on a.nazwa = a_s.m_Artykul_nazwa "
                               "join m_skladnik as s on a_s.m_Skladnik_nazwa = s.nazwa  "
-                              "where kategoria = \"%1\" and d_nazwa_baru = '%2' "
-                              "group by a.nazwa ").arg(category);
+                              "where kategoria = \"%1\" and d_numer_baru = '%2' "
+                              "group by a.nazwa ").arg(category).arg(LOCAL_NAME);
 
     q.exec(command);
 

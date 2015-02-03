@@ -24,8 +24,8 @@ public:
 
     QList<QString> GetCategoryList();
     QList<Product> GetAvailableProducts(QString category);
-    Product* GetSelectedpProduct(){return _productSelected;}
-
+    Product* GetSelectedProduct(){return _productSelected;}
+    Product* GetProductByName(QString name);
 
 };
 

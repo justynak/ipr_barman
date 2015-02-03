@@ -44,6 +44,13 @@ bool OrderManager::DeleteOrder()
 
 bool OrderManager::AddProduct()
 {
+    Product* p = _pManager->GetSelectedProduct();
+    QString name = _selectedOrder->GetOrderNumber();
+
+    if(name != "")
+        db->AddProductToOrder(name ,*p);
+
+    //add to list
     return true;
 }
 

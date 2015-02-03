@@ -3,13 +3,13 @@
 
 #include <QWidget>
 #include "productmanager.h"
-
+#include <QDialog>
 
 namespace Ui {
 class ManageProductWindow;
 }
 
-class ManageProductWindow : public QWidget
+class ManageProductWindow : public QDialog
 {
     Q_OBJECT
 
@@ -20,11 +20,10 @@ public:
 private:
     Ui::ManageProductWindow *ui;
     ProductManager* _productManager;
+    Product* productSelected;
 
 signals:
     void managerClosed();
-    void productSelected(Product* p);
-
 
 private slots:
     void on_box_categories_activated(const QString &arg1);

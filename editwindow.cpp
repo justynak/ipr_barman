@@ -130,5 +130,10 @@ void EditWindow::on_product_list_cellActivated(int row, int col)
 
 void EditWindow::on_button_add_product_clicked()
 {
-    //ManageProductWindow mpw;
+    ProductManager* manager = _bartender->GetProductManager();
+    ManageProductWindow mpw(manager);
+
+    mpw.exec();
+
+    _bartender->AddProduct();
 }
