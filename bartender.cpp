@@ -55,7 +55,7 @@ bool Bartender::RemoveOrder()
 
 bool Bartender::AddOrder()
 {
-    _oManager->CreateOrder();
+    _oManager->CreateOrder(_pesel);
     return true;
 }
 

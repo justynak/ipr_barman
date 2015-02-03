@@ -6,9 +6,12 @@ OrderList::OrderList(QString bartenderNumber)
     _list = db->GetOrders(bartenderNumber);
 }
 
-void OrderList::AddOrder(Order p)
+void OrderList::AddOrder(QString bartenderNumber)
 {
-    _list.append(p);
+    Order* p = new Order();
+    db->CreateOrder(bartenderNumber, p);
+
+    _list.append(*p);
 }
 
 void OrderList::RemoveOrder(Order p)

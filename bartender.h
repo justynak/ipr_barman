@@ -38,6 +38,7 @@ public:
     bool SetOrder(QString billNumber);
     QList<QString> GetOrders();
     QList<Product> GetProductsFromOrder();
+
 };
 
 #endif // BARTENDER_H

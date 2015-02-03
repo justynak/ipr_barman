@@ -25,7 +25,7 @@ public:
     bool SetSelectedOrder(Order* o) {_selectedOrder = o; return true;}
     bool SetSelectedOrder(QString name);
 
-    bool CreateOrder();
+    bool CreateOrder(QString bartenderNumber);
     bool DeleteOrder();
     bool AddProduct();
     bool ChangeProductNumber();

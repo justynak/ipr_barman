@@ -1,7 +1,7 @@
 #include "editwindow.h"
 #include "ui_editwindow.h"
-
-
+#include "manageproductwindow.h"
+#include "detailswindow.h"
 
 #define COL_PRODUCT     0
 #define COL_ADD_ONE     1
@@ -20,7 +20,7 @@ EditWindow::EditWindow(Bartender *bartender, QWidget *parent) :
     ui->label_logged_as->setText(tr("Zalogowany jako: %1 %2").arg(_bartender->GetName()).arg(_bartender->GetSurname()));
 
     QList<QString> list = _bartender->GetOrders();
-
+    ui->box_bills->addItem(tr("Nowy rachunek"));
     foreach (QString number, list)
     {
         ui->box_bills->addItem(tr("%1").arg(number));
@@ -61,9 +61,15 @@ void EditWindow::on_box_bills_activated(const QString &arg1)
     a<<"Produkt"<<""<<"Ilość"<<""<<"Cena"<<"Usuń";
     ui->product_list->setHorizontalHeaderLabels(a);
 
+    if(arg1 == "Nowy rachunek")
+    {
+       _bartender->AddOrder();
+    }
 
-    //make non-editable
-    _bartender->SetOrder(arg1);
+    else
+    {
+        _bartender->SetOrder(arg1);
+    }
 
     QList<Product> list = _bartender->GetProductsFromOrder();
 
@@ -88,12 +94,40 @@ void EditWindow::on_box_bills_activated(const QString &arg1)
         {
             ui->product_list->setItem(i, j, item[j]);
         }
+
     }
+
 }
 
 
 
-void EditWindow::on_product_list_cellActivated(int row, int column)
+void EditWindow::on_product_list_cellActivated(int row, int col)
 {
+    switch(col)
+    {
+        //case COL_PRODUCT: break;
+        case COL_ADD_ONE:
+            //dodaj jeden
+            //update_product_number(row, 1);
+        break;
 
+        //case COL_NUMBER: break;
+
+        case COL_REMOVE_ONE:
+            //usun o jeden
+            //update_product_number(row, -1);
+        break;
+
+        //case COL_PRICE: break;
+
+        case COL_DELETE:
+            //usun wpis
+            //remove_product(row);
+        break;
+    }
+}
+
+void EditWindow::on_button_add_product_clicked()
+{
+    //ManageProductWindow mpw;
 }

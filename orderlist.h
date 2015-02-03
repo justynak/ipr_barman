@@ -8,7 +8,7 @@ class OrderList
 {
 public:
     OrderList(QString bartenderNumber);
-    void AddOrder(Order o);
+    void AddOrder(QString bartenderNumber);
     void RemoveOrder(Order o);
     ~OrderList();
     QList<Order> GetOrderList() {return _list;}

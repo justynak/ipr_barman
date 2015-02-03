@@ -26,6 +26,7 @@ public:
 
 
     QString GetOrderNumber(){return _orderNumber;}
+    bool SetOrderNumber(QString number){_orderNumber = number; return true;}
 
     bool operator ==(Order o1);
 

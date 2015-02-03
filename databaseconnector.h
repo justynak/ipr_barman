@@ -48,6 +48,7 @@ public:
     bool ChangeProductNumber(QString billNumber, Product p);
     bool CloseOrder(QString billNumber);
     bool RemoveOrder(QString billNumber);
+    bool CreateOrder(QString bartenderNumber, Order *newOrder);
 
 };
 

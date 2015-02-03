@@ -1,6 +1,8 @@
 #include "databaseconnector.h"
 #include <QMessageBox>
 #include <QObject>
+#include <QDate>
+
 
 void DatabaseConnector::connect()
 {
@@ -262,6 +264,30 @@ bool DatabaseConnector::RemoveOrder(QString billNumber)
 
     command = QObject::tr("delete from `d_zamowienie` where nr_zamowienia =%1").arg(billNumber);
     return query.exec(command);
+}
+
+bool DatabaseConnector::CreateOrder(QString bartenderNumber, Order* newOrder)
+{
+    //this->connect();
+
+    QString date = QDate::currentDate().toString(Qt::ISODate);
+
+    QSqlQuery query;
+
+    QString command = QObject::tr("INSERT INTO d_zamowienie(d_barman_PESEL, data_zamowienia) VALUES('%1', '%2')"
+                                  ).arg(bartenderNumber).arg(date);
+
+    bool ok = query.exec(command);
+    query.finish();
+
+    if(ok)
+    {
+        command = QString("SELECT MAX(nr_zamowienia) FROM d_zamowienie");
+        query.exec(command);
+        query.first();
+        newOrder->SetOrderNumber(query.value(0).toString());
+    }
+    return ok;
 }
 
 

@@ -248,25 +248,6 @@
     <string>+</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="button_tables">
-   <property name="geometry">
-    <rect>
-     <x>1110</x>
-     <y>530</y>
-     <width>231</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>Gotham Black</family>
-     <pointsize>16</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Zaznacz stoliki</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_bill_number">
    <property name="geometry">
     <rect>
@@ -284,25 +265,6 @@
    </property>
    <property name="text">
     <string>Rachunek nr: </string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="button_logging">
-   <property name="geometry">
-    <rect>
-     <x>1110</x>
-     <y>180</y>
-     <width>231</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>Gotham Black</family>
-     <pointsize>16</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Zaloguj</string>
    </property>
   </widget>
  </widget>

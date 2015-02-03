@@ -33,8 +33,9 @@ bool OrderManager::SetSelectedOrder(QString name)
     else return false;
 }
 
-bool OrderManager::CreateOrder()
+bool OrderManager::CreateOrder(QString bartenderNumber)
 {
+    _orderList->AddOrder(bartenderNumber);
     return true;
 }
 
@@ -87,7 +88,12 @@ QList<QString> OrderManager::GetOrders()
 
 QList<Product> OrderManager::GetProducts()
 {
-    QList<Product> p = *(_selectedOrder->GetProductList());
-    return p;
+    QList<Product> emptyList;
+    QList<Product>* p = (_selectedOrder->GetProductList());
+    if(p!= NULL)
+        return *p;
+    else
+        return emptyList;
+
 }
 

@@ -24,8 +24,11 @@ void Order::SetProductList(QList<Product> *list)
 
 QList<Product>* Order::GetProductList()
 {
-    if(!_productList->isEmpty())
+    if(_productList != NULL)
         return this->_productList;
+
+    else
+        return NULL;
 }
 
 void Order::AddProduct(Product p)
