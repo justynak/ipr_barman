@@ -39,6 +39,20 @@ bool OrderManager::CreateOrder(QString bartenderNumber)
 
 bool OrderManager::DeleteOrder()
 {
+    QString billNumber = _selectedOrder->GetOrderNumber();
+    QList<Product> *list = _selectedOrder->GetProductList();
+    int size = list->size();
+
+    for(int i=0; i<size; ++i)
+    {
+        Product p = list->first();
+        db->RemoveProductFromOrder(billNumber, p);
+        _selectedOrder->RemoveProduct(p);
+    }
+
+    db->RemoveOrder(billNumber);
+    //_selectedOrder;
+
     return true;
 }
 

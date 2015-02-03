@@ -39,6 +39,7 @@ EditWindow::EditWindow(Bartender *bartender, QWidget *parent) :
     //connects
     connect(ui->box_bills, SIGNAL(activated(QString)), this, SLOT(on_box_bills_activated(QString)));
     connect(ui->product_list, SIGNAL(cellClicked(int,int)), this, SLOT(on_product_list_cellActivated(int,int)));
+    connect(ui->button_delete_bill, SIGNAL(clicked()), this, SLOT(on_button_delete_bill_clicked()));
 }
 
 EditWindow::~EditWindow()
@@ -141,4 +142,31 @@ void EditWindow::on_button_add_product_clicked()
     mpw.exec();
 
     _bartender->AddProduct();
+}
+
+void EditWindow::on_button_delete_bill_clicked()
+{
+    _bartender->RemoveOrder();
+
+    //refresh gui
+    ui->box_bills->clear();
+    QList<QString> list = _bartender->GetOrders();
+    ui->box_bills->addItem(tr("Nowy rachunek"));
+    foreach (QString number, list)
+    {
+        ui->box_bills->addItem(tr("%1").arg(number));
+    }
+
+    ui->product_list->clear();
+    ui->label_bill_number->setText(tr("Numer rachunku: "));
+    ui->product_list->setRowCount(0);
+    ui->product_list->setColumnCount(6);
+    ui->product_list->setColumnWidth(COL_PRODUCT, 352);
+    ui->product_list->setColumnWidth(COL_ADD_ONE, 50);
+    ui->product_list->setColumnWidth(COL_REMOVE_ONE, 50);
+    ui->product_list->setColumnWidth(COL_DELETE, 150);
+    QStringList a;
+    a<<"Produkt"<<""<<"Ilość"<<""<<"Cena"<<"Usuń";
+    ui->product_list->setHorizontalHeaderLabels(a);
+
 }

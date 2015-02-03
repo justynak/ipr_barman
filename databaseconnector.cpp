@@ -255,14 +255,12 @@ bool DatabaseConnector::CloseOrder(QString billNumber)
 
 bool DatabaseConnector::RemoveOrder(QString billNumber)
 {
-    //this->connect();
-
     QSqlQuery query;
-    QString command = QObject::tr("delete from `d_zamowienie_artykul` where d_numer_zamowienia =%1").arg(billNumber);
+    QString command = QObject::tr("delete from `d_zamowienie_artykul` where d_numer_zamowienia = %1").arg(billNumber);
     query.exec(command);
     query.finish();
 
-    command = QObject::tr("delete from `d_zamowienie` where nr_zamowienia =%1").arg(billNumber);
+    command = QObject::tr("delete from `d_zamowienie` where nr_zamowienia = %1").arg(billNumber);
     return query.exec(command);
 }
 

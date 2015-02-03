@@ -23,6 +23,8 @@ private slots:
     void on_product_list_cellActivated(int row, int column);
     void on_button_add_product_clicked();
 
+    void on_button_delete_bill_clicked();
+
 private:
     Ui::EditWindow *ui;
     DetailsWindow* _detailsWindow;
