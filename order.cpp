@@ -27,7 +27,6 @@ QList<Product>* Order::GetProductList()
 {
     if(_productList != NULL)
         return this->_productList;
-
     else
         return NULL;
 }

@@ -31,7 +31,7 @@ public:
     bool AddProduct();
     bool ChangeProductNumber(Product* p, int newNumber);
 
-    bool DeleteProduct();
+    bool DeleteProduct(Product *p);
     bool ScanCustomer();
 
     bool PrintBill();

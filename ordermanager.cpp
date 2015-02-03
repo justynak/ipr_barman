@@ -48,7 +48,10 @@ bool OrderManager::AddProduct()
     QString name = _selectedOrder->GetOrderNumber();
 
     if(name != "")
+    {
         db->AddProductToOrder(name ,*p);
+        _selectedOrder->AddProduct(*p);
+    }
 
     //add to list
     return true;
@@ -57,12 +60,20 @@ bool OrderManager::AddProduct()
 bool OrderManager::ChangeProductNumber(Product *p, int newNumber)
 {
     _selectedOrder->ChangeProductNumber(*p, newNumber);
+    p->SetNumber(newNumber);
+    QString billNumber = _selectedOrder->GetOrderNumber();
+    db->ChangeProductNumber(billNumber, *p);
+
     return true;
 }
 
-bool OrderManager::DeleteProduct()
+bool OrderManager::DeleteProduct(Product *p)
 {
-       return true;
+    QString billNumber = _selectedOrder->GetOrderNumber();
+    db->RemoveProductFromOrder(billNumber, *p);
+
+    _selectedOrder->RemoveProduct(*p);
+    return true;
 }
 
 bool OrderManager::ScanCustomer()

@@ -37,7 +37,7 @@ bool Bartender::AddProduct()
 
 bool Bartender::RemoveProduct(Product p)
 {
-    _oManager->DeleteProduct();
+    _oManager->DeleteProduct(&p);
     return true;
 }
 

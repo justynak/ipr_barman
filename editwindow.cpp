@@ -104,26 +104,31 @@ void EditWindow::on_box_bills_activated(const QString &arg1)
 
 void EditWindow::on_product_list_cellActivated(int row, int col)
 {
+    QList<Product> list = _bartender->GetProductsFromOrder();
+    Product p = list[row];
+    int number = p.GetNumber();
+
     switch(col)
     {
-        //case COL_PRODUCT: break;
         case COL_ADD_ONE:
-            //dodaj jeden
-            //update_product_number(row, 1);
+            number+=1;
+            _bartender->ChangeProductNumber(p, number);
+            ui->product_list->item(row, COL_NUMBER)->setText(tr("%1").arg(number));
         break;
-
-        //case COL_NUMBER: break;
 
         case COL_REMOVE_ONE:
-            //usun o jeden
-            //update_product_number(row, -1);
+            number-=1;
+            if(number>=1)
+            {
+                _bartender->ChangeProductNumber(p, number);
+                ui->product_list->item(row, COL_NUMBER)->setText(tr("%1").arg(number));
+            }
         break;
 
-        //case COL_PRICE: break;
-
         case COL_DELETE:
-            //usun wpis
-            //remove_product(row);
+             _bartender->RemoveProduct(p);
+             ui->product_list->removeRow(row);
+             //delete from ui
         break;
     }
 }
