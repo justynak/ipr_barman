@@ -34,13 +34,16 @@ public:
 
     bool RemoveOrder();
     bool AddOrder();
+    bool CloseOrder();
+
     bool SetSelectedProduct(Product* p) {_oManager->SetSelectedProduct(p); return true;}
 
     bool SetOrder(QString billNumber);
     QList<QString> GetOrders();
     QList<Product> GetProductsFromOrder();
 
-    QString GetSelectedOrder(){return _oManager->GetSelectedOrder();}
+    QString GetSelectedOrderNumber(){return _oManager->GetSelectedOrderNumber();}
+    Order* GetSelectedOrder(){return _oManager->GetSelectedOrder();}
     ProductManager* GetProductManager(){return _oManager->GetProductManager();}
 
 };

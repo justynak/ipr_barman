@@ -40,7 +40,8 @@ public:
 
     QList<QString> GetOrders();
     QList<Product> GetProducts();
-    QString GetSelectedOrder(){return _selectedOrder->GetOrderNumber();}
+    QString GetSelectedOrderNumber(){return _selectedOrder->GetOrderNumber();}
+    Order* GetSelectedOrder(){return _selectedOrder;}
     ProductManager* GetProductManager(){return _pManager;}
 };
 

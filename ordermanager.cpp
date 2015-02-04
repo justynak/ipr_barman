@@ -97,7 +97,9 @@ bool OrderManager::ScanCustomer()
 
 bool OrderManager::PrintBill()
 {
-     return true;
+    QString orderNumber = _selectedOrder->GetOrderNumber();
+    db->CloseOrder(orderNumber);
+    return true;
 }
 
 bool OrderManager::RefreshData()

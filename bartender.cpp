@@ -59,6 +59,12 @@ bool Bartender::AddOrder()
     return true;
 }
 
+bool Bartender::CloseOrder()
+{
+    _oManager->PrintBill();
+    return true;
+}
+
 bool Bartender::SetOrder(QString billNumber)
 {
     _oManager->SetSelectedOrder(billNumber);

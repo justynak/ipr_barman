@@ -13,6 +13,10 @@ public:
     OrderDetails();
     OrderDetails(Order* o);
     ~OrderDetails();
+    QList<Product>* GetProductList(){return _order->GetProductList();}
+    QString GetOrderNumber(){return _order->GetOrderNumber();}
+    double GetCost(){return _cost;}
+
 
 };
 
