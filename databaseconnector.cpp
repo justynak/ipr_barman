@@ -207,7 +207,7 @@ QString DatabaseConnector::GetRandomCustomerID()
 bool DatabaseConnector::CustomerExists(QString number)
 {
     QSqlQuery q;
-    QString command = QObject::tr("SELECT numer_karty FROM d_staly_klient WHERE numer_karty = %1").arg(number);
+    QString command = QObject::tr("SELECT numer_karty FROM d_staly_klient WHERE numer_karty = '%1'").arg(number);
     q.exec(command);
 
     q.first();
@@ -218,7 +218,7 @@ bool DatabaseConnector::CustomerExists(QString number)
 bool DatabaseConnector::SetCustomerIDinOrder(QString number, QString orderNumber)
 {
     QSqlQuery q;
-    return q.exec(QObject::tr("UPDATE d_zamowienie SET d_numer_karty = '%1 "
+    return q.exec(QObject::tr("UPDATE d_zamowienie SET d_numer_karty = '%1' "
                                   "WHERE nr_zamowienia = %2").arg(number).arg(orderNumber));
 }
 

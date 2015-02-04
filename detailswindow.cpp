@@ -46,6 +46,11 @@ DetailsWindow::DetailsWindow(OrderDetails *o, QWidget *parent) :
     ui->label_bill_number->setText(tr("Numer rachunku: %1").arg(_details->GetOrderNumber()));
     ui->label_value->setText(tr("%1 zł").arg(_details->GetCost()));
 
+    double discount = _details->GetDiscount();
+    double priceReduction = 1.00 - discount;
+    double discounted = _details->GetCost() * priceReduction;
+    ui->labelDiscount->setText(tr("%1 zł").arg(discounted));
+
 }
 
 DetailsWindow::~DetailsWindow()

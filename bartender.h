@@ -49,8 +49,9 @@ public:
     ProductManager* GetProductManager(){return _oManager->GetProductManager();}
 
     OrderDetails* GetOrderDetails(){return _oManager->GetOrderDetails();}
-
     QString GetSelectedOrderCustomerID(){return _oManager->GetCustomerID();}
+    double GetSelectedOrderCost(){return _oManager->GetCost();}
+
 };
 
 #endif // BARTENDER_H

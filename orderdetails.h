@@ -21,6 +21,8 @@ public:
     QString GetOrderNumber(){return _order->GetOrderNumber();}
     double GetCost(){return _cost;}
 
+    void RecalculateCost();
+
 
 };
 

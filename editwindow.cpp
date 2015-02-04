@@ -51,7 +51,6 @@ void EditWindow::on_box_bills_activated(const QString &arg1)
 {
     ui->product_list->clear();
 
-
     ui->product_list->setRowCount(0);
     ui->product_list->setColumnCount(6);
     ui->product_list->setColumnWidth(COL_PRODUCT, 352);
@@ -99,7 +98,7 @@ void EditWindow::on_box_bills_activated(const QString &arg1)
 
     }
     ui->label_client_number->setText(tr("Numer klienta: %1").arg(_bartender->GetSelectedOrderCustomerID()));
-
+    ui->label_value->setText(tr("%1 zł").arg(_bartender->GetSelectedOrderCost()));
 }
 
 
@@ -133,6 +132,8 @@ void EditWindow::on_product_list_cellActivated(int row, int col)
              //delete from ui
         break;
     }
+    ui->label_client_number->setText(tr("Numer klienta: %1").arg(_bartender->GetSelectedOrderCustomerID()));
+    ui->label_value->setText(tr("%1 zł").arg(_bartender->GetSelectedOrderCost()));
 }
 
 void EditWindow::on_button_add_product_clicked()
@@ -143,6 +144,8 @@ void EditWindow::on_button_add_product_clicked()
     mpw.exec();
 
     _bartender->AddProduct();
+    ui->label_client_number->setText(tr("Numer klienta: %1").arg(_bartender->GetSelectedOrderCustomerID()));
+    ui->label_value->setText(tr("%1 zł").arg(_bartender->GetSelectedOrderCost()));
 }
 
 void EditWindow::on_button_delete_bill_clicked()
@@ -169,6 +172,9 @@ void EditWindow::on_button_delete_bill_clicked()
     QStringList a;
     a<<"Produkt"<<""<<"Ilość"<<""<<"Cena"<<"Usuń";
     ui->product_list->setHorizontalHeaderLabels(a);
+
+    ui->label_client_number->setText(tr("Numer klienta: "));
+    ui->label_value->setText(tr(" zł"));
 
 }
 
@@ -210,11 +216,15 @@ void EditWindow::on_button_print_bill_clicked()
             ui->box_bills->addItem(tr("%1").arg(number));
         }
 
+        ui->label_client_number->setText(tr("Numer klienta: "));
+        ui->label_value->setText(tr("Koszt zamówienia:  zł"));
+
     }
 }
 
 void EditWindow::on_button_scan_client_card_clicked()
 {
     _bartender->ScanCustomer();
-    //ui->label_client_number->setText();
+    ui->label_client_number->setText(tr("Numer klienta: %1").arg(_bartender->GetSelectedOrderCustomerID()));
+    ui->label_value->setText(tr("%1 zł").arg(_bartender->GetSelectedOrderCost()));
 }

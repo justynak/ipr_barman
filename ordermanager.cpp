@@ -1,6 +1,6 @@
 #include "ordermanager.h"
 
-#define DISCOUNT 0.1
+#define DISCOUNT (double)0.1
 
 
 OrderManager::OrderManager(QString bartenderNumber)
@@ -30,7 +30,6 @@ bool OrderManager::SetSelectedOrder(Order *o)
     _oDetails  = new OrderDetails(o);
 
     _selectedOrder = o;
-
     return true;
 }
 
@@ -86,6 +85,7 @@ bool OrderManager::AddProduct()
     }
 
     //add to list
+    _oDetails->RecalculateCost();
     return true;
 }
 
@@ -95,6 +95,7 @@ bool OrderManager::ChangeProductNumber(Product *p, int newNumber)
     p->SetNumber(newNumber);
     QString billNumber = _selectedOrder->GetOrderNumber();
     db->ChangeProductNumber(billNumber, *p);
+    _oDetails->RecalculateCost();
 
     return true;
 }
@@ -105,6 +106,8 @@ bool OrderManager::DeleteProduct(Product *p)
     db->RemoveProductFromOrder(billNumber, *p);
 
     _selectedOrder->RemoveProduct(*p);
+    _oDetails->RecalculateCost();
+
     return true;
 }
 
@@ -115,7 +118,10 @@ bool OrderManager::ScanCustomer()
     QString customerNumber = scan.GetCustomerID();
 
     _oDetails->SetDiscount(DISCOUNT);
+
+    _selectedOrder->SetCustomerID(customerNumber);
     db->SetCustomerIDinOrder(customerNumber, _selectedOrder->GetOrderNumber());
+
     return true;
 }
 

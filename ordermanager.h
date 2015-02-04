@@ -46,6 +46,7 @@ public:
 
     QString GetCustomerID(){return _selectedOrder->GetCustomerID();}
     OrderDetails* GetOrderDetails(){return _oDetails;}
+    double GetCost(){return _oDetails->GetCost();}
 };
 
 #endif // ORDERMANAGER_H
