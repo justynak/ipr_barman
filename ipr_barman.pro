@@ -14,7 +14,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    local.cpp \
     editwindow.cpp \
     loginwindow.cpp \
     manageproductwindow.cpp \
@@ -32,7 +31,6 @@ SOURCES += main.cpp\
     loginscanner.cpp
 
 HEADERS  += mainwindow.h \
-    local.h \
     editwindow.h \
     loginwindow.h \
     manageproductwindow.h \

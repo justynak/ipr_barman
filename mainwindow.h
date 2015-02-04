@@ -5,7 +5,6 @@
 #include "bartender.h"
 #include "loginwindow.h"
 #include "editwindow.h"
-#include "local.h"
 
 
 namespace Ui {
@@ -25,7 +24,6 @@ private:
     Bartender* _bartender;
     LoginWindow* _loginWindow;
     EditWindow* _editWindow;
-    Local local;
 
 private slots:
     void SetLoggingWindow();

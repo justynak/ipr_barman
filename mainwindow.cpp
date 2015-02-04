@@ -9,8 +9,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    local.SetName(LOCAL_NAME);
-
     SetLoggingWindow();
 }
 
