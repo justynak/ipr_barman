@@ -3,15 +3,12 @@
 
 #include <QList>
 #include "databaseconnector.h"
-//#include "product.h"
 
 class CategoryList
 {
 private:
     DatabaseConnector *db;
     QList<QString> _categories;
-    //QList<Product> _productsInCategory;
-
 
 public:
     CategoryList();

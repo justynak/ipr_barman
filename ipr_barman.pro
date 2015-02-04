@@ -29,8 +29,7 @@ SOURCES += main.cpp\
     customerscanner.cpp \
     bartender.cpp \
     databaseconnector.cpp \
-    loginscanner.cpp \
-    dialog.cpp
+    loginscanner.cpp
 
 HEADERS  += mainwindow.h \
     local.h \
@@ -48,8 +47,7 @@ HEADERS  += mainwindow.h \
     customerscanner.h \
     bartender.h \
     databaseconnector.h \
-    loginscanner.h \
-    dialog.h
+    loginscanner.h
 
 FORMS    += mainwindow.ui \
     editwindow.ui \
