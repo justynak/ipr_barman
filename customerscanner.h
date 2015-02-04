@@ -6,10 +6,13 @@ class CustomerScanner
 {
 
 private:
-    DatabaseConnector* database;
+    DatabaseConnector* db;
+    QString _id;
 
 public:
     CustomerScanner();
+    bool ScanCustomerID();
+    QString GetCustomerID(){return _id;}
     ~CustomerScanner();
 };
 

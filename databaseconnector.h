@@ -43,6 +43,10 @@ public:
     QList<Product>* GetProductsFromBill(QString billNumber);
     QList<Order> GetOrders(QString bartenderNumber);
 
+    QString GetRandomCustomerID();
+    bool CustomerExists(QString number);
+    bool SetCustomerIDinOrder(QString number, QString orderNumber);
+
     bool RemoveProductFromOrder(QString billNumber, Product p);
     bool AddProductToOrder(QString billNumber, Product p);
     bool ChangeProductNumber(QString billNumber, Product p);

@@ -36,6 +36,8 @@ public:
     bool AddOrder();
     bool CloseOrder();
 
+    bool ScanCustomer();
+
     bool SetSelectedProduct(Product* p) {_oManager->SetSelectedProduct(p); return true;}
 
     bool SetOrder(QString billNumber);
@@ -46,6 +48,9 @@ public:
     Order* GetSelectedOrder(){return _oManager->GetSelectedOrder();}
     ProductManager* GetProductManager(){return _oManager->GetProductManager();}
 
+    OrderDetails* GetOrderDetails(){return _oManager->GetOrderDetails();}
+
+    QString GetSelectedOrderCustomerID(){return _oManager->GetCustomerID();}
 };
 
 #endif // BARTENDER_H

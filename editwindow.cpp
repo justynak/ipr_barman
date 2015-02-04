@@ -98,6 +98,7 @@ void EditWindow::on_box_bills_activated(const QString &arg1)
         }
 
     }
+    ui->label_client_number->setText(tr("Numer klienta: %1").arg(_bartender->GetSelectedOrderCustomerID()));
 
 }
 
@@ -173,7 +174,7 @@ void EditWindow::on_button_delete_bill_clicked()
 
 void EditWindow::on_button_print_bill_clicked()
 {
-    Order *o = _bartender->GetSelectedOrder();
+    OrderDetails *o = _bartender->GetOrderDetails();
 
     /*
     connect(YesButton, SIGNAL(clicked()), dlg, SLOT(accept()));
@@ -183,7 +184,7 @@ void EditWindow::on_button_print_bill_clicked()
     DetailsWindow dw(o);
     int result = dw.exec();
 
-    if(result == 1);
+    if(result == 1)
     {
         _bartender->CloseOrder();
 
@@ -210,4 +211,10 @@ void EditWindow::on_button_print_bill_clicked()
         }
 
     }
+}
+
+void EditWindow::on_button_scan_client_card_clicked()
+{
+    _bartender->ScanCustomer();
+    //ui->label_client_number->setText();
 }

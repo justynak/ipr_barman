@@ -4,12 +4,14 @@ Order::Order()
 {
     _productList = new QList<Product>;
     _orderNumber = "";
+    _customerID = "";
 }
 
 Order::Order(QString orderNumber)
 {
     _orderNumber = orderNumber;
     _productList = new QList<Product>;
+    _customerID = "";
 }
 
 Order::~Order()

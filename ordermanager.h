@@ -22,7 +22,7 @@ public:
     OrderManager(QString bartenderNumber);
     ~OrderManager();
 
-    bool SetSelectedOrder(Order* o) {_selectedOrder = o; return true;}
+    bool SetSelectedOrder(Order* o);
     bool SetSelectedOrder(QString name);
     bool SetSelectedProduct(Product* p){_pManager->SetSelectedProduct(p); return true;}
 
@@ -34,7 +34,7 @@ public:
     bool DeleteProduct(Product *p);
     bool ScanCustomer();
 
-    bool PrintBill();
+    bool CloseOrder();
 
     bool RefreshData();
 
@@ -43,6 +43,9 @@ public:
     QString GetSelectedOrderNumber(){return _selectedOrder->GetOrderNumber();}
     Order* GetSelectedOrder(){return _selectedOrder;}
     ProductManager* GetProductManager(){return _pManager;}
+
+    QString GetCustomerID(){return _selectedOrder->GetCustomerID();}
+    OrderDetails* GetOrderDetails(){return _oDetails;}
 };
 
 #endif // ORDERMANAGER_H

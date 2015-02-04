@@ -1,13 +1,11 @@
 #include "detailswindow.h"
 #include "ui_detailswindow.h"
 
-DetailsWindow::DetailsWindow(Order *o, QWidget *parent) :
-    QDialog(parent),
+DetailsWindow::DetailsWindow(OrderDetails *o, QWidget *parent) :
+    QDialog(parent), _details(o),
     ui(new Ui::DetailsWindow)
 {
-    ui->setupUi(this);
-
-    _details = new OrderDetails(o);
+    ui->setupUi(this); 
 
     //wyświetlanie szczegółów rachunku
 

@@ -1,5 +1,8 @@
 #include "ordermanager.h"
 
+#define DISCOUNT 0.1
+
+
 OrderManager::OrderManager(QString bartenderNumber)
 {
     db = DatabaseConnector::GetInstance();
@@ -10,6 +13,8 @@ OrderManager::OrderManager(QString bartenderNumber)
     //initialize selected order
     _selectedOrder = &(_orderList->GetOrder(0));
 
+    _oDetails = new OrderDetails();
+
     _pManager = new ProductManager();
 }
 
@@ -19,9 +24,22 @@ OrderManager::~OrderManager()
     delete _pManager;
 }
 
+bool OrderManager::SetSelectedOrder(Order *o)
+{
+    if(_oDetails != NULL) delete _oDetails;
+    _oDetails  = new OrderDetails(o);
+
+    _selectedOrder = o;
+
+    return true;
+}
+
 bool OrderManager::SetSelectedOrder(QString name)
 {
     Order* o = _orderList->GetOrderByName(name);
+
+    if(_oDetails != NULL) delete _oDetails;
+    _oDetails  = new OrderDetails(o);
 
     _selectedOrder = o;
     QList<Product>* p = db->GetProductsFromBill(name);
@@ -92,10 +110,16 @@ bool OrderManager::DeleteProduct(Product *p)
 
 bool OrderManager::ScanCustomer()
 {
-      return true;
+    CustomerScanner scan;
+    scan.ScanCustomerID();
+    QString customerNumber = scan.GetCustomerID();
+
+    _oDetails->SetDiscount(DISCOUNT);
+    db->SetCustomerIDinOrder(customerNumber, _selectedOrder->GetOrderNumber());
+    return true;
 }
 
-bool OrderManager::PrintBill()
+bool OrderManager::CloseOrder()
 {
     QString orderNumber = _selectedOrder->GetOrderNumber();
     db->CloseOrder(orderNumber);

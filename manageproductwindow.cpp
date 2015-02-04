@@ -78,7 +78,13 @@ void ManageProductWindow::on_button_remove_clicked()
 
 void ManageProductWindow::on_button_approve_clicked()
 {
-    //push to db
+    Product* p = _productManager->GetSelectedProduct();
+    QString name = p->GetName();
+    Product* pr =  _productManager->GetProductByName(name);
+
+    int maxnumber = pr->GetNumber() - p->GetNumber();
+    pr->SetNumber(maxnumber);
+
     //close window
     this->done(0);
 }

@@ -14,11 +14,8 @@ public:
     LoginScanner();
     ~LoginScanner();
 
-    void SetCardNumber(QString number) {_scannedNumber = number;}
     QString GetCardNumber(){return _scannedNumber;}
     bool ScanCard();
-
-    bool CheckLogin(QString login);
 };
 
 #endif // LOGINSCANNER_H

@@ -164,7 +164,7 @@ QList<Order> DatabaseConnector::GetOrders(QString bartenderNumber)
     //this->connect();
 
     QSqlQuery q;
-    QString command = QObject::tr("SELECT nr_zamowienia FROM  d_zamowienie WHERE d_barman_pesel = '%1'").arg(bartenderNumber);
+    QString command = QObject::tr("SELECT nr_zamowienia, d_numer_karty FROM  d_zamowienie WHERE d_barman_pesel = '%1'").arg(bartenderNumber);
     q.exec(command);
 
     QList<Order> list;
@@ -172,12 +172,54 @@ QList<Order> DatabaseConnector::GetOrders(QString bartenderNumber)
     while(q.next())
     {   //nazwa, l szt, cena
         QString orderNumber = q.value(0).toString();
+        QString customerID = q.value(1).toString();
         Order o(orderNumber);
+        o.SetCustomerID(customerID);
         o.SetProductList(GetProductsFromBill(orderNumber));
         list.append(o);
     }
 
     return list;
+}
+
+QString DatabaseConnector::GetRandomCustomerID()
+{
+    QList<QString> list;
+    QSqlQuery q;
+
+    QString command = QObject::tr("SELECT numer_karty FROM d_staly_klient");
+    q.exec(command);
+
+    while(q.next())
+    {   //nazwa, l szt, cena
+        QString number = q.value(0).toString();
+        list.append(number);
+    }
+
+    qsrand(QTime::currentTime().msec());
+    uint max = list.size();
+    uint i = qrand() % max;
+
+    return list[i];
+
+}
+
+bool DatabaseConnector::CustomerExists(QString number)
+{
+    QSqlQuery q;
+    QString command = QObject::tr("SELECT numer_karty FROM d_staly_klient WHERE numer_karty = %1").arg(number);
+    q.exec(command);
+
+    q.first();
+    if(q.value(0).toString() != "") return true;
+    else return false;
+}
+
+bool DatabaseConnector::SetCustomerIDinOrder(QString number, QString orderNumber)
+{
+    QSqlQuery q;
+    return q.exec(QObject::tr("UPDATE d_zamowienie SET d_numer_karty = '%1 "
+                                  "WHERE nr_zamowienia = %2").arg(number).arg(orderNumber));
 }
 
 

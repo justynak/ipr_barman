@@ -61,7 +61,13 @@ bool Bartender::AddOrder()
 
 bool Bartender::CloseOrder()
 {
-    _oManager->PrintBill();
+    _oManager->CloseOrder();
+    return true;
+}
+
+bool Bartender::ScanCustomer()
+{
+    _oManager->ScanCustomer();
     return true;
 }
 

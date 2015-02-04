@@ -8,7 +8,8 @@ OrderDetails::OrderDetails()
 OrderDetails::OrderDetails(Order *o)
 {
     _order = o;
-    _cost = 0.0;
+    _cost = 0.00;
+    _discount = 0.0;
 
     QList<Product>list =  *(_order->GetProductList());
 

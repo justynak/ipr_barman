@@ -27,6 +27,8 @@ private slots:
 
     void on_button_print_bill_clicked();
 
+    void on_button_scan_client_card_clicked();
+
 private:
     Ui::EditWindow *ui;
     DetailsWindow* _detailsWindow;

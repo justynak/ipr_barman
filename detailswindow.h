@@ -17,7 +17,7 @@ class DetailsWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit DetailsWindow(Order* o, QWidget *parent = 0);
+    explicit DetailsWindow(OrderDetails* o, QWidget *parent = 0);
     ~DetailsWindow();
 
 private slots:
