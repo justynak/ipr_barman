@@ -1,16 +1,14 @@
 #include "ordermanager.h"
 #include "businessday.h"
 
+#include <utility>
+
 
 OrderManager::OrderManager(BarRepository* repository, CardScanner* customerScanner)
+    : _pManager(new ProductManager(repository)),
+      db(repository),
+      _customerScanner(customerScanner)
 {
-    db = repository;
-    _customerScanner = customerScanner;
-
-    _selected = -1;
-    _nextDraftNumber = 1;
-
-    _pManager = new ProductManager(db);
 }
 
 OrderManager::~OrderManager()
@@ -21,14 +19,14 @@ OrderManager::~OrderManager()
 DraftOrder* OrderManager::Selected()
 {
     if(_selected < 0 || _selected >= _drafts.size())
-        return NULL;
+        return nullptr;
     return &_drafts[_selected];
 }
 
 QList<QString> OrderManager::GetOrders()
 {
     QList<QString> labels;
-    foreach(const DraftOrder& d, _drafts)
+    for(const DraftOrder& d : std::as_const(_drafts))
         labels.append(d.GetLabel());
     return labels;
 }
@@ -55,7 +53,7 @@ bool OrderManager::SetSelectedOrder(QString label)
 
 bool OrderManager::DeleteOrder()
 {
-    if(Selected() == NULL) return false;
+    if(Selected() == nullptr) return false;
 
     _drafts.removeAt(_selected);
     _selected = -1;
@@ -65,7 +63,7 @@ bool OrderManager::DeleteOrder()
 bool OrderManager::AddProduct()
 {
     DraftOrder* d = Selected();
-    if(d == NULL) return false;
+    if(d == nullptr) return false;
 
     Product p = _pManager->GetSelectedProduct();
     int quantity = _pManager->GetSelectedQuantity();
@@ -80,7 +78,7 @@ bool OrderManager::AddProduct()
 bool OrderManager::ChangeProductQuantity(int productId, int quantity)
 {
     DraftOrder* d = Selected();
-    if(d == NULL) return false;
+    if(d == nullptr) return false;
 
     return d->ChangeQuantity(productId, quantity);
 }
@@ -88,7 +86,7 @@ bool OrderManager::ChangeProductQuantity(int productId, int quantity)
 bool OrderManager::DeleteProduct(int productId)
 {
     DraftOrder* d = Selected();
-    if(d == NULL) return false;
+    if(d == nullptr) return false;
 
     return d->RemoveProduct(productId);
 }
@@ -96,7 +94,7 @@ bool OrderManager::DeleteProduct(int productId)
 bool OrderManager::ScanCustomer()
 {
     DraftOrder* d = Selected();
-    if(d == NULL) return false;
+    if(d == nullptr) return false;
 
     QString cardNumber = _customerScanner->ScanCard();
     if(cardNumber == "")
@@ -114,7 +112,7 @@ bool OrderManager::ScanCustomer()
 bool OrderManager::FinalizeOrder(int shiftId)
 {
     DraftOrder* d = Selected();
-    if(d == NULL || d->IsEmpty()) return false;
+    if(d == nullptr || d->IsEmpty()) return false;
 
     QDateTime now = QDateTime::currentDateTime();
 
@@ -129,7 +127,7 @@ bool OrderManager::FinalizeOrder(int shiftId)
 DraftOrder OrderManager::GetSelectedOrder()
 {
     DraftOrder* d = Selected();
-    if(d == NULL)
+    if(d == nullptr)
         return DraftOrder();
     return *d;
 }
@@ -137,17 +135,17 @@ DraftOrder OrderManager::GetSelectedOrder()
 QString OrderManager::GetSelectedOrderNumber()
 {
     DraftOrder* d = Selected();
-    return d != NULL ? d->GetLabel() : QString("");
+    return d != nullptr ? d->GetLabel() : QString("");
 }
 
 QString OrderManager::GetCustomerID()
 {
     DraftOrder* d = Selected();
-    return d != NULL ? d->GetCustomerCard() : QString("");
+    return d != nullptr ? d->GetCustomerCard() : QString("");
 }
 
 Money OrderManager::GetCost()
 {
     DraftOrder* d = Selected();
-    return d != NULL ? d->Subtotal() : 0;
+    return d != nullptr ? d->Subtotal() : 0;
 }

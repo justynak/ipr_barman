@@ -12,9 +12,8 @@ private:
 
 public:
     explicit CustomerScanner(BarRepository* repository);
-    ~CustomerScanner();
 
-    QString ScanCard();
+    QString ScanCard() override;
 };
 
 #endif // CUSTOMERSCANNER_H

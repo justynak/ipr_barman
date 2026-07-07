@@ -11,10 +11,7 @@ MainWindow::MainWindow(BarRepository* repository, CardScanner* loginScanner,
     ui(new Ui::MainWindow),
     _repository(repository),
     _loginScanner(loginScanner),
-    _customerScanner(customerScanner),
-    _bartender(NULL),
-    _loginWindow(NULL),
-    _editWindow(NULL)
+    _customerScanner(customerScanner)
 {
     ui->setupUi(this);
 
@@ -23,7 +20,7 @@ MainWindow::MainWindow(BarRepository* repository, CardScanner* loginScanner,
 
 MainWindow::~MainWindow()
 {
-    if(_bartender != NULL)
+    if(_bartender != nullptr)
         _repository->CloseShift(_bartender->GetShiftId(), QDateTime::currentDateTime());
 
     delete ui;

@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(ipr_barman LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -40,6 +41,8 @@ add_library(barman_core STATIC
 
 target_include_directories(barman_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(barman_core PUBLIC Qt5::Core Qt5::Sql)
+# The code uses range-for; keep the foreach macro from creeping back in.
+target_compile_definitions(barman_core PUBLIC QT_NO_FOREACH)
 
 add_executable(ipr_barman
     main.cpp

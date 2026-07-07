@@ -16,8 +16,8 @@ private:
     CardScanner* _customerScanner;
 
     QList<DraftOrder> _drafts;
-    int _selected;          // index into _drafts, -1 = none
-    int _nextDraftNumber;
+    int _selected = -1;     // index into _drafts, -1 = none
+    int _nextDraftNumber = 1;
 
     DraftOrder* Selected();
 

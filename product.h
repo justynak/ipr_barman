@@ -9,14 +9,14 @@
 class Product
 {
 private:
-    int _id;
+    int _id = 0;
     QString _name;
-    Money _price;
+    Money _price = 0;
     QString _category;
-    int _available;
+    int _available = 0;
 
 public:
-    Product() : _id(0), _price(0), _available(0) {}
+    Product() = default;
     Product(int id, QString name, Money price, QString category, int available)
         : _id(id), _name(name), _price(price), _category(category), _available(available) {}
 

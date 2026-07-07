@@ -1,14 +1,9 @@
 #include "categorylist.h"
 
 CategoryList::CategoryList(BarRepository* repository)
+    : db(repository)
 {
-    db = repository;
-    this->GetCategoriesFromDB();
-}
-
-CategoryList::~CategoryList()
-{
-
+    GetCategoriesFromDB();
 }
 
 bool CategoryList::GetCategoriesFromDB()

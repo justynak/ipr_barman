@@ -14,8 +14,8 @@ class EditWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit EditWindow(Bartender* bartender, QWidget *parent = 0);
-    ~EditWindow();
+    explicit EditWindow(Bartender* bartender, QWidget *parent = nullptr);
+    ~EditWindow() override;
 
 private slots:
     void onBillSelected(const QString &label);

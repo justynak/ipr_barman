@@ -16,7 +16,7 @@
 class BarRepository
 {
 public:
-    virtual ~BarRepository() {}
+    virtual ~BarRepository() = default;
 
     // employees & shifts
     virtual Employee FindEmployeeByCard(QString cardNumber) = 0;

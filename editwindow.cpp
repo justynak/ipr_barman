@@ -4,17 +4,18 @@
 #include "detailswindow.h"
 #include "money.h"
 
-#define COL_PRODUCT     0
-#define COL_ADD_ONE     1
-#define COL_NUMBER      2
-#define COL_REMOVE_ONE  3
-#define COL_PRICE       4
-#define COL_DELETE      5
+constexpr int COL_PRODUCT    = 0;
+constexpr int COL_ADD_ONE    = 1;
+constexpr int COL_NUMBER     = 2;
+constexpr int COL_REMOVE_ONE = 3;
+constexpr int COL_PRICE      = 4;
+constexpr int COL_DELETE     = 5;
 
 
 EditWindow::EditWindow(Bartender *bartender, QWidget *parent) :
-    QWidget(parent), _bartender(bartender),
-    ui(new Ui::EditWindow)
+    QWidget(parent),
+    ui(new Ui::EditWindow),
+    _bartender(bartender)
 {
     ui->setupUi(this);
 
@@ -94,7 +95,8 @@ void EditWindow::refreshBillsCombo()
 {
     ui->box_bills->clear();
     ui->box_bills->addItem(tr("Nowy rachunek"));
-    foreach(QString label, _bartender->GetOrders())
+    const QList<QString> labels = _bartender->GetOrders();
+    for(const QString& label : labels)
         ui->box_bills->addItem(label);
 }
 

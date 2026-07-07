@@ -10,7 +10,7 @@ class ProductManager
 private:
     CategoryList* _categoryList;
     Product _productSelected;
-    int _selectedQuantity;
+    int _selectedQuantity = 0;
     QList<Product> _availableProducts;
     BarRepository *db;
 

@@ -2,12 +2,8 @@
 
 
 MySqlBarRepository::MySqlBarRepository(const BarDatabaseConfig& config)
-{
-    _config = config;
-    db = QSqlDatabase::addDatabase("QMYSQL");
-}
-
-MySqlBarRepository::~MySqlBarRepository()
+    : _config(config),
+      db(QSqlDatabase::addDatabase("QMYSQL"))
 {
 }
 
@@ -196,7 +192,8 @@ bool MySqlBarRepository::FinalizeOrder(const DraftOrder& draft, int shiftId,
 
     int orderId = q.lastInsertId().toInt();
 
-    foreach(const OrderLine& line, draft.GetLines())
+    const QList<OrderLine> lines = draft.GetLines();
+    for(const OrderLine& line : lines)
     {
         q.prepare("INSERT INTO order_item"
                   "(order_id, product_id, product_name, unit_price, quantity) "

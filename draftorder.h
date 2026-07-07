@@ -15,12 +15,12 @@ const double LOYAL_CUSTOMER_DISCOUNT = 0.1;
 // the moment the line is added — exactly what order_item stores at finalize.
 struct OrderLine
 {
-    int productId;
+    int productId = 0;
     QString productName;
-    Money unitPrice;
-    int quantity;
+    Money unitPrice = 0;
+    int quantity = 0;
 
-    OrderLine() : productId(0), unitPrice(0), quantity(0) {}
+    OrderLine() = default;
     OrderLine(int id, QString name, Money price, int qty)
         : productId(id), productName(name), unitPrice(price), quantity(qty) {}
 };
@@ -31,15 +31,14 @@ class DraftOrder
 {
 private:
     QString _label;
-    int _customerId;
+    int _customerId = 0;
     QString _customerCard;
-    double _discountRate;
+    double _discountRate = 0.0;
     QList<OrderLine> _lines;
 
 public:
-    DraftOrder() : _customerId(0), _discountRate(0.0) {}
-    explicit DraftOrder(QString label)
-        : _label(label), _customerId(0), _discountRate(0.0) {}
+    DraftOrder() = default;
+    explicit DraftOrder(QString label) : _label(label) {}
 
     QString GetLabel() const { return _label; }
 

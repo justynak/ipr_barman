@@ -15,8 +15,8 @@ class LoginWindow : public QWidget
     Q_OBJECT
 
 public:
-    LoginWindow(CardScanner* loginScanner, BarRepository* repository, QWidget *parent = 0);
-    ~LoginWindow();
+    LoginWindow(CardScanner* loginScanner, BarRepository* repository, QWidget *parent = nullptr);
+    ~LoginWindow() override;
 
 signals:
     void logged(QString bartenderNumber);

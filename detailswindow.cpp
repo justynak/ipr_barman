@@ -2,8 +2,10 @@
 #include "ui_detailswindow.h"
 
 DetailsWindow::DetailsWindow(DraftOrder draft, QString currency, QWidget *parent) :
-    QDialog(parent), _draft(draft), _currency(currency),
-    ui(new Ui::DetailsWindow)
+    QDialog(parent),
+    ui(new Ui::DetailsWindow),
+    _draft(draft),
+    _currency(currency)
 {
     ui->setupUi(this);
 

@@ -12,7 +12,6 @@ private:
 
 public:
     explicit CategoryList(BarRepository* repository);
-    ~CategoryList();
 
     bool GetCategoriesFromDB();
 

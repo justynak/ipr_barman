@@ -5,13 +5,11 @@
 
 struct Employee
 {
-    int id;             // 0 = not found / invalid
+    int id = 0;         // 0 = not found / invalid
     QString role;       // "bartender" or "manager"
     QString cardNumber;
     QString firstName;
     QString lastName;
-
-    Employee() : id(0) {}
 
     bool IsValid() const { return id > 0; }
 };

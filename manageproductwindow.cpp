@@ -2,15 +2,17 @@
 #include "ui_manageproductwindow.h"
 
 ManageProductWindow::ManageProductWindow(ProductManager *manager, QWidget *parent) :
-    QDialog(parent), _productManager(manager),
-    ui(new Ui::ManageProductWindow)
+    QDialog(parent),
+    ui(new Ui::ManageProductWindow),
+    _productManager(manager)
 {
     ui->setupUi(this);
 
     _productManager->ClearSelection();
 
     //fill the box with categories
-    foreach(QString category, _productManager->GetCategoryList())
+    const QList<QString> categories = _productManager->GetCategoryList();
+    for(const QString& category : categories)
     {
         ui->box_categories->addItem(category);
     }
@@ -32,7 +34,8 @@ void ManageProductWindow::onCategorySelected(const QString &category)
 {
     ui->box_products->clear();
 
-    foreach (Product p, _productManager->GetAvailableProducts(category))
+    const QList<Product> products = _productManager->GetAvailableProducts(category);
+    for(const Product& p : products)
     {
         ui->box_products->addItem(p.GetName());
     }
@@ -41,7 +44,7 @@ void ManageProductWindow::onCategorySelected(const QString &category)
 void ManageProductWindow::onProductSelected(const QString &name)
 {
     Product* pr = _productManager->GetProductByName(name);
-    if(pr == NULL) return;
+    if(pr == nullptr) return;
 
     _productManager->SetSelectedProduct(*pr);
 

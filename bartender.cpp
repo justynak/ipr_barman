@@ -2,17 +2,15 @@
 
 Bartender::Bartender(BarRepository* repository, CardScanner* customerScanner,
                      Employee employee, int shiftId)
+    : _employee(employee),
+      _shiftId(shiftId),
+      _currency(repository->GetBarCurrency()),
+      _oManager(new OrderManager(repository, customerScanner)),
+      db(repository)
 {
-    db = repository;
-    _employee = employee;
-    _shiftId = shiftId;
-    _currency = db->GetBarCurrency();
-
-    //init order manager
-    _oManager = new OrderManager(db, customerScanner);
 }
 
 Bartender::~Bartender()
 {
-    if(_oManager != NULL) delete _oManager;
+    delete _oManager;
 }

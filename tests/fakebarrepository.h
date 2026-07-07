@@ -4,6 +4,8 @@
 #include <QMap>
 #include <QStringList>
 
+#include <utility>
+
 #include "barrepository.h"
 
 // In-memory BarRepository mirroring schema v2: employees/shifts, customers,
@@ -15,37 +17,37 @@ class FakeBarRepository : public BarRepository
 public:
     struct RecipeLine
     {
-        int ingredientId;
-        double amount;
+        int ingredientId = 0;
+        double amount = 0;
 
-        RecipeLine() : ingredientId(0), amount(0) {}
+        RecipeLine() = default;
         RecipeLine(int id, double a) : ingredientId(id), amount(a) {}
     };
 
     struct Movement
     {
-        int ingredientId;
-        double amount;          // negative = consumed
+        int ingredientId = 0;
+        double amount = 0;      // negative = consumed
         QString reason;
-        int orderItemId;        // 0 = none
+        int orderItemId = 0;    // 0 = none
         QDateTime occurredAt;
     };
 
     struct FinalizedItem
     {
-        int id;
-        int productId;
+        int id = 0;
+        int productId = 0;
         QString productName;    // copy at sale time
-        Money unitPrice;        // copy at sale time
-        int quantity;
+        Money unitPrice = 0;    // copy at sale time
+        int quantity = 0;
     };
 
     struct FinalizedOrder
     {
-        int shiftId;
+        int shiftId = 0;
         QDate businessDay;
-        int customerId;         // 0 = none
-        double discountRate;
+        int customerId = 0;     // 0 = none
+        double discountRate = 0;
         QString currency;       // copy at sale time
         QDateTime createdAt;
         QList<FinalizedItem> items;
@@ -53,16 +55,16 @@ public:
 
     struct Shift
     {
-        int id;
-        int employeeId;
+        int id = 0;
+        int employeeId = 0;
         QDateTime openedAt;
         QDateTime closedAt;
-        bool closed;
+        bool closed = false;
     };
 
     QMap<QString, Employee> employees;          // card -> employee
     QMap<QString, int> customers;               // card -> id
-    QString currency;
+    QString currency = "PLN";
 
     QList<Product> catalog;                     // availability field ignored; derived
     QMap<int, QList<RecipeLine> > recipes;      // product id -> recipe
@@ -71,8 +73,6 @@ public:
 
     QList<Shift> shifts;
     QList<FinalizedOrder> finalizedOrders;
-
-    FakeBarRepository() : currency("PLN"), _nextOrderItemId(1) {}
 
     // -- test setup helpers --------------------------------------------------
 
@@ -106,7 +106,7 @@ public:
     double CurrentStock(int ingredientId) const
     {
         double stock = openingStock.value(ingredientId, 0);
-        foreach(const Movement& m, movements)
+        for(const Movement& m : movements)
         {
             if(m.ingredientId == ingredientId)
                 stock += m.amount;
@@ -116,17 +116,17 @@ public:
 
     // -- BarRepository -------------------------------------------------------
 
-    Employee FindEmployeeByCard(QString cardNumber)
+    Employee FindEmployeeByCard(QString cardNumber) override
     {
         return employees.value(cardNumber, Employee());
     }
 
-    QList<QString> GetEmployeeCardNumbers()
+    QList<QString> GetEmployeeCardNumbers() override
     {
         return employees.keys();
     }
 
-    int OpenShift(int employeeId, QDateTime openedAt)
+    int OpenShift(int employeeId, QDateTime openedAt) override
     {
         Shift s;
         s.id = shifts.size() + 1;
@@ -137,7 +137,7 @@ public:
         return s.id;
     }
 
-    bool CloseShift(int shiftId, QDateTime closedAt)
+    bool CloseShift(int shiftId, QDateTime closedAt) override
     {
         for(int i = 0; i < shifts.size(); ++i)
         {
@@ -151,10 +151,10 @@ public:
         return false;
     }
 
-    QList<QString> GetCategories()
+    QList<QString> GetCategories() override
     {
         QList<QString> categories;
-        foreach(const Product& p, catalog)
+        for(const Product& p : std::as_const(catalog))
         {
             if(!categories.contains(p.GetCategory()))
                 categories.append(p.GetCategory());
@@ -162,10 +162,10 @@ public:
         return categories;
     }
 
-    QList<Product> GetProductsFromCategory(QString category)
+    QList<Product> GetProductsFromCategory(QString category) override
     {
         QList<Product> list;
-        foreach(const Product& p, catalog)
+        for(const Product& p : std::as_const(catalog))
         {
             if(p.GetCategory() != category)
                 continue;
@@ -174,7 +174,8 @@ public:
             // derivation the ingredient_stock view query performs.
             int available = 0;
             bool first = true;
-            foreach(const RecipeLine& line, recipes.value(p.GetId()))
+            const QList<RecipeLine> recipe = recipes.value(p.GetId());
+            for(const RecipeLine& line : recipe)
             {
                 int possible = (int)(CurrentStock(line.ingredientId) / line.amount);
                 if(possible < 0)
@@ -190,7 +191,7 @@ public:
         return list;
     }
 
-    Customer FindCustomerByCard(QString cardNumber)
+    Customer FindCustomerByCard(QString cardNumber) override
     {
         Customer c;
         if(!customers.contains(cardNumber))
@@ -200,18 +201,18 @@ public:
         return c;
     }
 
-    QList<QString> GetCustomerCardNumbers()
+    QList<QString> GetCustomerCardNumbers() override
     {
         return customers.keys();
     }
 
-    QString GetBarCurrency()
+    QString GetBarCurrency() override
     {
         return currency;
     }
 
     bool FinalizeOrder(const DraftOrder& draft, int shiftId,
-                       QDate businessDay, QDateTime createdAt)
+                       QDate businessDay, QDateTime createdAt) override
     {
         if(draft.IsEmpty())
             return false;
@@ -224,7 +225,8 @@ public:
         order.currency = currency;
         order.createdAt = createdAt;
 
-        foreach(const OrderLine& line, draft.GetLines())
+        const QList<OrderLine> lines = draft.GetLines();
+        for(const OrderLine& line : lines)
         {
             FinalizedItem item;
             item.id = _nextOrderItemId++;
@@ -234,7 +236,8 @@ public:
             item.quantity = line.quantity;
             order.items.append(item);
 
-            foreach(const RecipeLine& recipeLine, recipes.value(line.productId))
+            const QList<RecipeLine> recipe = recipes.value(line.productId);
+            for(const RecipeLine& recipeLine : recipe)
             {
                 Movement m;
                 m.ingredientId = recipeLine.ingredientId;
@@ -251,7 +254,7 @@ public:
     }
 
 private:
-    int _nextOrderItemId;
+    int _nextOrderItemId = 1;
 };
 
 #endif // FAKEBARREPOSITORY_H
