@@ -48,7 +48,7 @@ void ManageProductWindow::onProductSelected(const QString &name)
 
     _productManager->SetSelectedProduct(*pr);
 
-    ui->label_available->setText(tr("%1").arg(pr->GetAvailable()));
+    ui->label_available->setText(tr("Available: %1").arg(pr->GetAvailable()));
     ui->label_number->setText(tr("%1").arg(_productManager->GetSelectedQuantity()));
 }
 

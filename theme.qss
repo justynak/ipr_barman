@@ -1,0 +1,106 @@
+/* Barman theme — cream / espresso / bottle green.
+ *
+ * Palette:
+ *   #fff2cc  cream       — surfaces
+ *   #4d1d14  espresso    — text, borders, table headers
+ *   #003300  bottle green — buttons, selection
+ * Hover/pressed greens and the light field cream are derived shades of the
+ * three base colours; translucent espresso is used for hairlines.
+ *
+ * Only font-family is set app-wide: per-widget point sizes from the .ui
+ * files (headings at 32pt etc.) must survive, and a stylesheet font-size on
+ * QWidget/QLabel would override them all.
+ */
+
+QWidget {
+    background-color: #fff2cc;
+    color: #4d1d14;
+    font-family: "Georgia", "DejaVu Serif", "Palatino Linotype", serif;
+}
+
+QLabel {
+    background: transparent;
+}
+
+QPushButton {
+    background-color: #003300;
+    color: #fff2cc;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #1f4d1f;
+}
+QPushButton:pressed {
+    background-color: #001a00;
+}
+QPushButton:disabled {
+    background-color: rgba(0, 51, 0, 35%);
+    color: rgba(255, 242, 204, 60%);
+}
+
+QPushButton#buttonLogin {
+    font-size: 24px;
+    border-radius: 14px;
+}
+
+QComboBox {
+    background-color: #fffdf5;
+    border: 1px solid #4d1d14;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 16px;
+}
+QComboBox:hover {
+    border-color: #003300;
+}
+QComboBox::drop-down {
+    border: none;
+    width: 28px;
+}
+QComboBox QAbstractItemView {
+    background-color: #fffdf5;
+    color: #4d1d14;
+    border: 1px solid #4d1d14;
+    selection-background-color: #003300;
+    selection-color: #fff2cc;
+}
+
+QTableWidget {
+    background-color: #fffdf5;
+    alternate-background-color: #fff7dd;
+    border: 1px solid rgba(77, 29, 20, 40%);
+    border-radius: 6px;
+    gridline-color: rgba(77, 29, 20, 20%);
+    font-size: 15px;
+    selection-background-color: #003300;
+    selection-color: #fff2cc;
+}
+QHeaderView::section {
+    background-color: #4d1d14;
+    color: #fff2cc;
+    border: none;
+    padding: 8px;
+    font-size: 15px;
+    font-weight: bold;
+}
+QTableCornerButton::section {
+    background-color: #4d1d14;
+    border: none;
+}
+
+QScrollBar:vertical {
+    background: #fff2cc;
+    width: 12px;
+}
+QScrollBar::handle:vertical {
+    background: rgba(77, 29, 20, 45%);
+    border-radius: 6px;
+    min-height: 24px;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0;
+}

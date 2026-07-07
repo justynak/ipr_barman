@@ -9,15 +9,15 @@ DetailsWindow::DetailsWindow(DraftOrder draft, QString currency, QWidget *parent
 {
     ui->setupUi(this);
 
-    //wyświetlanie szczegółów rachunku
-
     ui->table_costs->setRowCount(0);
     ui->table_costs->setColumnCount(3);
-    ui->table_costs->setColumnWidth(0, 152);
-    ui->table_costs->setColumnWidth(1, 50);
-    ui->table_costs->setColumnWidth(2, 50);
+    ui->table_costs->setColumnWidth(0, 280);
+    ui->table_costs->setColumnWidth(1, 90);
+    ui->table_costs->setColumnWidth(2, 110);
+    ui->table_costs->setAlternatingRowColors(true);
+    ui->table_costs->verticalHeader()->setVisible(false);
     QStringList headers;
-    headers << tr("Produkt") << tr("Ilość") << tr("Cena");
+    headers << tr("Product") << tr("Qty") << tr("Price");
     ui->table_costs->setHorizontalHeaderLabels(headers);
 
 
@@ -41,7 +41,7 @@ DetailsWindow::DetailsWindow(DraftOrder draft, QString currency, QWidget *parent
             ui->table_costs->setItem(i, j, item[j]);
     }
 
-    ui->label_bill_number->setText(tr("Numer rachunku: %1").arg(_draft.GetLabel()));
+    ui->label_bill_number->setText(tr("Bill no.: %1").arg(_draft.GetLabel()));
     ui->label_value->setText(QString("%1 %2").arg(moneyToDecimalString(_draft.Subtotal())).arg(_currency));
     ui->labelDiscount->setText(QString("%1 %2").arg(moneyToDecimalString(_draft.Total())).arg(_currency));
 
