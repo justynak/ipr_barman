@@ -16,7 +16,7 @@ public:
 
     Order operator[](int i);
     Order* GetOrderByName(QString billName);
-    Order GetOrder(int i){return _list[i];}
+    Order& GetOrder(int i){return _list[i];}
     Order* GetLast(){return &(_list.last());}
 
 private:

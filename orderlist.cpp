@@ -2,7 +2,7 @@
 
 OrderList::OrderList(QString bartenderNumber)
 {
-    db->DatabaseConnector::GetInstance();
+    db = DatabaseConnector::GetInstance();
     _list = db->GetOrders(bartenderNumber);
 }
 
