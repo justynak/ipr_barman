@@ -17,7 +17,7 @@ order, or retarget each PR's base to `master` as its predecessor merges):
 | 2 — repository seam | #4 | `refactor/phase2-repository-seam` | done |
 | 3 — schema v2 migration | #5 | `refactor/phase3-schema-v2` | done |
 | 4 — UI cleanup | #6 | `refactor/phase4-ui-cleanup` | done |
-| 5 — modernization sweep | — | `refactor/phase5-modernization` | done |
+| 5 — modernization sweep | #7 | `refactor/phase5-modernization` | done |
 
 Deviations from / additions to the original plan, discovered while
 implementing:
