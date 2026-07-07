@@ -41,10 +41,12 @@ void ManageProductWindow::on_box_categories_activated(const QString &arg1)
 
 void ManageProductWindow::on_box_products_activated(const QString &arg1)
 {
+    Product* pr =  _productManager->GetProductByName(arg1);
+    if(pr == NULL) return;
+
     Product* p = _productManager->GetSelectedProduct();
     p->SetName(arg1);
 
-    Product* pr =  _productManager->GetProductByName(arg1);
     int maxnumber = pr->GetNumber();
     p->SetNumber(0);
 
@@ -82,8 +84,8 @@ void ManageProductWindow::on_button_approve_clicked()
     QString name = p->GetName();
     Product* pr =  _productManager->GetProductByName(name);
 
-    int maxnumber = pr->GetNumber() - p->GetNumber();
-    pr->SetNumber(maxnumber);
+    if(pr != NULL)
+        pr->SetNumber(pr->GetNumber() - p->GetNumber());
 
     //close window
     this->done(0);

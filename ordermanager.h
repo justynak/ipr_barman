@@ -2,9 +2,9 @@
 #define ORDERMANAGER_H
 #include "productmanager.h"
 #include "orderdetails.h"
-#include "customerscanner.h"
+#include "cardscanner.h"
 #include "order.h"
-#include "databaseconnector.h"
+#include "barrepository.h"
 #include "orderlist.h"
 
 class OrderManager
@@ -15,11 +15,11 @@ private:
     OrderDetails* _oDetails;
     OrderList* _orderList;
     Order* _selectedOrder;
-    DatabaseConnector* db;
+    BarRepository* db;
+    CardScanner* _customerScanner;
 
 public:
-    OrderManager(){}
-    OrderManager(QString bartenderNumber);
+    OrderManager(BarRepository* repository, CardScanner* customerScanner, QString bartenderNumber);
     ~OrderManager();
 
     bool SetSelectedOrder(Order* o);
@@ -35,8 +35,6 @@ public:
     bool ScanCustomer();
 
     bool CloseOrder();
-
-    bool RefreshData();
 
     QList<QString> GetOrders();
     QList<Product> GetProducts();

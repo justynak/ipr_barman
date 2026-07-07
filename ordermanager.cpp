@@ -1,19 +1,20 @@
 #include "ordermanager.h"
 
 
-OrderManager::OrderManager(QString bartenderNumber)
+OrderManager::OrderManager(BarRepository* repository, CardScanner* customerScanner, QString bartenderNumber)
 {
-    db = DatabaseConnector::GetInstance();
+    db = repository;
+    _customerScanner = customerScanner;
 
     //initialize orderList
-    _orderList = new OrderList(bartenderNumber);
+    _orderList = new OrderList(db, bartenderNumber);
 
     //no order selected until the user picks one (the list may be empty)
     _selectedOrder = NULL;
 
     _oDetails = new OrderDetails();
 
-    _pManager = new ProductManager();
+    _pManager = new ProductManager(db);
 }
 
 OrderManager::~OrderManager()
@@ -120,9 +121,11 @@ bool OrderManager::ScanCustomer()
 {
     if(_selectedOrder == NULL) return false;
 
-    CustomerScanner scan;
-    scan.ScanCustomerID();
-    QString customerNumber = scan.GetCustomerID();
+    QString customerNumber = _customerScanner->ScanCard();
+
+    // The discount is only for cards of known loyal customers.
+    if(customerNumber == "" || !db->CustomerExists(customerNumber))
+        return false;
 
     _oDetails->SetDiscount(LOYAL_CUSTOMER_DISCOUNT);
 
@@ -138,11 +141,6 @@ bool OrderManager::CloseOrder()
 
     QString orderNumber = _selectedOrder->GetOrderNumber();
     db->CloseOrder(orderNumber);
-    return true;
-}
-
-bool OrderManager::RefreshData()
-{
     return true;
 }
 

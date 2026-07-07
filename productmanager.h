@@ -2,29 +2,27 @@
 #define PRODUCTMANAGER_H
 #include "categorylist.h"
 #include "product.h"
-#include "order.h"
-#include "databaseconnector.h"
+#include "barrepository.h"
 
 class ProductManager
 {
 
 private:
     CategoryList* _categoryList;
-    Product* _productSelected;
+    Product _productSelected;
     QList<Product> _availableProducts;
-    DatabaseConnector *db;
+    BarRepository *db;
 
 public:
-    ProductManager();
+    explicit ProductManager(BarRepository* repository);
     ~ProductManager();
-    //void AddProduct(Order o);
+
     void SetProducts(QString category);
-    void SetSelectedProduct(Product* p){_productSelected = p;}
-    void ChangeProductNumber(Order o, Product p, uint newNumber);
+    void SetSelectedProduct(Product* p){ if(p != NULL) _productSelected = *p; }
 
     QList<QString> GetCategoryList();
     QList<Product> GetAvailableProducts(QString category);
-    Product* GetSelectedProduct(){return _productSelected;}
+    Product* GetSelectedProduct(){return &_productSelected;}
     Product* GetProductByName(QString name);
 
 };

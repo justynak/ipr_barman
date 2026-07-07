@@ -1,8 +1,8 @@
 #include "orderlist.h"
 
-OrderList::OrderList(QString bartenderNumber)
+OrderList::OrderList(BarRepository* repository, QString bartenderNumber)
 {
-    db = DatabaseConnector::GetInstance();
+    db = repository;
     _list = db->GetOrders(bartenderNumber);
 }
 

@@ -20,9 +20,11 @@ add_library(barman_core STATIC
     categorylist.cpp
     customerscanner.cpp
     bartender.cpp
-    databaseconnector.cpp
+    mysqlbarrepository.cpp
     loginscanner.cpp
 
+    barrepository.h
+    cardscanner.h
     ordermanager.h
     orderlist.h
     order.h
@@ -32,17 +34,12 @@ add_library(barman_core STATIC
     categorylist.h
     customerscanner.h
     bartender.h
-    databaseconnector.h
+    mysqlbarrepository.h
     loginscanner.h
 )
 
 target_include_directories(barman_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-# Widgets is needed only for the QMessageBox inside DatabaseConnector::connect();
-# it moves out of the data layer in the repository refactor (phase 2).
-target_link_libraries(barman_core
-    PUBLIC Qt5::Core Qt5::Sql
-    PRIVATE Qt5::Widgets
-)
+target_link_libraries(barman_core PUBLIC Qt5::Core Qt5::Sql)
 
 add_executable(ipr_barman
     main.cpp

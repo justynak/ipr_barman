@@ -2,7 +2,8 @@
 #define BARTENDER_H
 #include <QString>
 #include "ordermanager.h"
-#include "databaseconnector.h"
+#include "barrepository.h"
+#include "cardscanner.h"
 
 class Bartender
 {
@@ -13,11 +14,10 @@ private:
     QString _surname;
 
     OrderManager* _oManager;
-    DatabaseConnector *db;
+    BarRepository *db;
 
 public:
-    Bartender(QString pesel);
-    Bartender(){_oManager = NULL; db = DatabaseConnector::GetInstance();}
+    Bartender(BarRepository* repository, CardScanner* customerScanner, QString pesel);
     ~Bartender();
 
     void SetName();
