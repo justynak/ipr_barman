@@ -6,7 +6,7 @@
 
 // Money is an integer number of cents (grosze). The DB stores DECIMAL(8,2);
 // the code never does arithmetic on floating-point amounts.
-typedef qint64 Money;
+using Money = qint64;
 
 // Rounding policy: half away from zero, once, at the final amount.
 inline Money moneyFromDouble(double amount)

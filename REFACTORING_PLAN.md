@@ -17,7 +17,7 @@ order, or retarget each PR's base to `master` as its predecessor merges):
 | 2 — repository seam | #4 | `refactor/phase2-repository-seam` | done |
 | 3 — schema v2 migration | #5 | `refactor/phase3-schema-v2` | done |
 | 4 — UI cleanup | #6 | `refactor/phase4-ui-cleanup` | done |
-| 5 — modernization sweep | — | — | not started (optional) |
+| 5 — modernization sweep | — | `refactor/phase5-modernization` | done |
 
 Deviations from / additions to the original plan, discovered while
 implementing:
@@ -43,6 +43,14 @@ implementing:
   `DetailsWindow` takes the currency as a ctor argument.
 - Money display everywhere is `moneyToDecimalString()` + `bar.currency`
   (phase 3 groundwork made this trivial in phase 4).
+- Phase 5 additions beyond the listed items: `QT_NO_FOREACH` is defined
+  `PUBLIC` on `barman_core` so `foreach` cannot creep back in; three window
+  constructors had their init lists reordered to match member declaration
+  order (latent `-Wreorder`); `EditWindow`'s `#define COL_*` became
+  `constexpr int`; empty destructors deleted (Rule of Zero) and interface
+  destructors `= default`. Range-for over Qt containers uses
+  `std::as_const()` on members and const locals for returned temporaries, to
+  avoid detach. Builds clean with `-Wall -Wextra`.
 
 ## 1. Current state assessment
 

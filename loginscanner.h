@@ -13,9 +13,8 @@ private:
 
 public:
     explicit LoginScanner(BarRepository* repository);
-    ~LoginScanner();
 
-    QString ScanCard();
+    QString ScanCard() override;
 };
 
 #endif // LOGINSCANNER_H

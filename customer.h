@@ -5,10 +5,8 @@
 
 struct Customer
 {
-    int id;             // 0 = not found / invalid
+    int id = 0;         // 0 = not found / invalid
     QString cardNumber;
-
-    Customer() : id(0) {}
 
     bool IsValid() const { return id > 0; }
 };

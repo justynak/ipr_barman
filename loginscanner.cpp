@@ -2,13 +2,8 @@
 #include <QRandomGenerator>
 
 LoginScanner::LoginScanner(BarRepository* repository)
+    : db(repository)
 {
-   db = repository;
-}
-
-LoginScanner::~LoginScanner()
-{
-
 }
 
 QString LoginScanner::ScanCard()

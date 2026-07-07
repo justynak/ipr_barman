@@ -16,8 +16,8 @@ class DetailsWindow : public QDialog
     Q_OBJECT
 
 public:
-    DetailsWindow(DraftOrder draft, QString currency, QWidget *parent = 0);
-    ~DetailsWindow();
+    DetailsWindow(DraftOrder draft, QString currency, QWidget *parent = nullptr);
+    ~DetailsWindow() override;
 
 private:
     Ui::DetailsWindow *ui;

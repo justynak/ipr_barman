@@ -24,27 +24,26 @@ private:
 
 public:
     explicit MySqlBarRepository(const BarDatabaseConfig& config);
-    ~MySqlBarRepository();
 
     // Opens the connection; on failure the error is available via LastError().
     bool Open();
     QSqlError LastError() const { return db.lastError(); }
 
-    Employee FindEmployeeByCard(QString cardNumber);
-    QList<QString> GetEmployeeCardNumbers();
-    int OpenShift(int employeeId, QDateTime openedAt);
-    bool CloseShift(int shiftId, QDateTime closedAt);
+    Employee FindEmployeeByCard(QString cardNumber) override;
+    QList<QString> GetEmployeeCardNumbers() override;
+    int OpenShift(int employeeId, QDateTime openedAt) override;
+    bool CloseShift(int shiftId, QDateTime closedAt) override;
 
-    QList<QString> GetCategories();
-    QList<Product> GetProductsFromCategory(QString category);
+    QList<QString> GetCategories() override;
+    QList<Product> GetProductsFromCategory(QString category) override;
 
-    Customer FindCustomerByCard(QString cardNumber);
-    QList<QString> GetCustomerCardNumbers();
+    Customer FindCustomerByCard(QString cardNumber) override;
+    QList<QString> GetCustomerCardNumbers() override;
 
-    QString GetBarCurrency();
+    QString GetBarCurrency() override;
 
     bool FinalizeOrder(const DraftOrder& draft, int shiftId,
-                       QDate businessDay, QDateTime createdAt);
+                       QDate businessDay, QDateTime createdAt) override;
 };
 
 #endif // MYSQLBARREPOSITORY_H

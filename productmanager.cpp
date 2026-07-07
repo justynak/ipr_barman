@@ -1,10 +1,9 @@
 #include "productmanager.h"
 
 ProductManager::ProductManager(BarRepository* repository)
+    : _categoryList(new CategoryList(repository)),
+      db(repository)
 {
-    db = repository;
-    _selectedQuantity = 0;
-    _categoryList = new CategoryList(db);
 }
 
 ProductManager::~ProductManager()
@@ -31,5 +30,5 @@ Product *ProductManager::GetProductByName(QString name)
             return &(_availableProducts[i]);
     }
 
-    return NULL;
+    return nullptr;
 }

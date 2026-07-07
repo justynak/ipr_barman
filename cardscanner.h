@@ -8,7 +8,7 @@
 class CardScanner
 {
 public:
-    virtual ~CardScanner() {}
+    virtual ~CardScanner() = default;
 
     // Returns the scanned card number, or "" when nothing could be scanned.
     virtual QString ScanCard() = 0;

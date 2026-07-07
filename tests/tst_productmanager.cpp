@@ -70,7 +70,7 @@ void TestProductManager::productByNameReturnsMatch()
     manager->GetAvailableProducts("Shots");
 
     Product* p = manager->GetProductByName("Rum shot");
-    QVERIFY(p != NULL);
+    QVERIFY(p != nullptr);
     QCOMPARE(p->GetPrice(), Money(1200));
 }
 
@@ -78,7 +78,7 @@ void TestProductManager::productByNameReturnsNullForUnknown()
 {
     manager->GetAvailableProducts("Shots");
 
-    QVERIFY(manager->GetProductByName("Absinthe") == NULL);
+    QVERIFY(manager->GetProductByName("Absinthe") == nullptr);
 }
 
 void TestProductManager::selectionHoldsProductAndQuantity()

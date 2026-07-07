@@ -11,7 +11,7 @@ public:
 
     void SetCard(QString card) { _card = card; }
 
-    QString ScanCard() { return _card; }
+    QString ScanCard() override { return _card; }
 
 private:
     QString _card;

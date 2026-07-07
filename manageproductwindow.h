@@ -17,8 +17,8 @@ class ManageProductWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit ManageProductWindow( ProductManager* manager, QWidget *parent = 0);
-    ~ManageProductWindow();
+    explicit ManageProductWindow(ProductManager* manager, QWidget *parent = nullptr);
+    ~ManageProductWindow() override;
 
 private:
     Ui::ManageProductWindow *ui;

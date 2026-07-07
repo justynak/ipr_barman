@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     MySqlBarRepository repository(config);
 
     if(!repository.Open())
-        QMessageBox::information(0, QObject::tr("Błąd"), repository.LastError().text());
+        QMessageBox::information(nullptr, QObject::tr("Błąd"), repository.LastError().text());
 
     LoginScanner loginScanner(&repository);
     CustomerScanner customerScanner(&repository);

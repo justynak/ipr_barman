@@ -49,7 +49,7 @@ bool DraftOrder::RemoveProduct(int productId)
 Money DraftOrder::Subtotal() const
 {
     Money sum = 0;
-    foreach(const OrderLine& line, _lines)
+    for(const OrderLine& line : _lines)
         sum += line.unitPrice * line.quantity;
     return sum;
 }

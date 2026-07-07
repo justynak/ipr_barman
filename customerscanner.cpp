@@ -2,13 +2,8 @@
 #include <QRandomGenerator>
 
 CustomerScanner::CustomerScanner(BarRepository* repository)
+    : db(repository)
 {
-    db = repository;
-}
-
-CustomerScanner::~CustomerScanner()
-{
-
 }
 
 QString CustomerScanner::ScanCard()

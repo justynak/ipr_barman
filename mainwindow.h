@@ -19,17 +19,17 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(BarRepository* repository, CardScanner* loginScanner,
-               CardScanner* customerScanner, QWidget *parent = 0);
-    ~MainWindow();
+               CardScanner* customerScanner, QWidget *parent = nullptr);
+    ~MainWindow() override;
 
 private:
     Ui::MainWindow *ui;
     BarRepository* _repository;
     CardScanner* _loginScanner;
     CardScanner* _customerScanner;
-    Bartender* _bartender;
-    LoginWindow* _loginWindow;
-    EditWindow* _editWindow;
+    Bartender* _bartender = nullptr;
+    LoginWindow* _loginWindow = nullptr;
+    EditWindow* _editWindow = nullptr;
 
 private slots:
     void SetLoggingWindow();
