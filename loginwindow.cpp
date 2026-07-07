@@ -1,12 +1,15 @@
 #include "loginwindow.h"
 #include "ui_loginwindow.h"
 
-LoginWindow::LoginWindow(QWidget *parent) :
+LoginWindow::LoginWindow(CardScanner* loginScanner, BarRepository* repository, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::LoginWindow)
+    ui(new Ui::LoginWindow),
+    _loginScanner(loginScanner),
+    _repository(repository)
 {
     ui->setupUi(this);
-    //connect(this->ui->buttonLogin, &QPushButton::clicked, this, &LoginWindow::on_buttonLogin_clicked);
+
+    connect(ui->buttonLogin, &QPushButton::clicked, this, &LoginWindow::onLoginClicked);
 }
 
 LoginWindow::~LoginWindow()
@@ -14,8 +17,10 @@ LoginWindow::~LoginWindow()
     delete ui;
 }
 
-void LoginWindow::on_buttonLogin_clicked()
+void LoginWindow::onLoginClicked()
 {
-    if(_loginScanner.ScanCard())
-        emit logged(_loginScanner.GetCardNumber());
+    QString cardNumber = _loginScanner->ScanCard();
+
+    if(cardNumber != "" && _repository->FindEmployeeByCard(cardNumber).IsValid())
+        emit logged(cardNumber);
 }

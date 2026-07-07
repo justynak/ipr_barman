@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include "bartender.h"
+#include "barrepository.h"
+#include "cardscanner.h"
 #include "loginwindow.h"
 #include "editwindow.h"
 
@@ -16,14 +18,18 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    MainWindow(BarRepository* repository, CardScanner* loginScanner,
+               CardScanner* customerScanner, QWidget *parent = nullptr);
+    ~MainWindow() override;
 
 private:
     Ui::MainWindow *ui;
-    Bartender* _bartender;
-    LoginWindow* _loginWindow;
-    EditWindow* _editWindow;
+    BarRepository* _repository;
+    CardScanner* _loginScanner;
+    CardScanner* _customerScanner;
+    Bartender* _bartender = nullptr;
+    LoginWindow* _loginWindow = nullptr;
+    EditWindow* _editWindow = nullptr;
 
 private slots:
     void SetLoggingWindow();

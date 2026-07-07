@@ -2,20 +2,18 @@
 #define CATEGORYLIST_H
 
 #include <QList>
-#include "databaseconnector.h"
+#include "barrepository.h"
 
 class CategoryList
 {
 private:
-    DatabaseConnector *db;
+    BarRepository *db;
     QList<QString> _categories;
 
 public:
-    CategoryList();
-    ~CategoryList();
+    explicit CategoryList(BarRepository* repository);
 
     bool GetCategoriesFromDB();
-    bool GetProductsFromDB();
 
     QList<QString> GetCategories();
 

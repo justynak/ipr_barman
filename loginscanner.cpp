@@ -1,20 +1,17 @@
 #include "loginscanner.h"
+#include <QRandomGenerator>
 
-LoginScanner::LoginScanner()
+LoginScanner::LoginScanner(BarRepository* repository)
+    : db(repository)
 {
-   db = DatabaseConnector::GetInstance();
-
 }
 
-LoginScanner::~LoginScanner()
+QString LoginScanner::ScanCard()
 {
+   QList<QString> cards = db->GetEmployeeCardNumbers();
 
+   if(cards.isEmpty())
+       return QString("");
+
+   return cards[QRandomGenerator::global()->bounded(cards.size())];
 }
-
-bool LoginScanner::ScanCard()
-{
-   _scannedNumber = db->GetRandomBartender();
-
-   return db->BartenderExists(_scannedNumber);
-}
-

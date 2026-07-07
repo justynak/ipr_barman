@@ -1,14 +1,9 @@
 #include "categorylist.h"
 
-CategoryList::CategoryList()
+CategoryList::CategoryList(BarRepository* repository)
+    : db(repository)
 {
-    db = DatabaseConnector::GetInstance();
-    this->GetCategoriesFromDB();
-}
-
-CategoryList::~CategoryList()
-{
-
+    GetCategoriesFromDB();
 }
 
 bool CategoryList::GetCategoriesFromDB()
@@ -17,14 +12,7 @@ bool CategoryList::GetCategoriesFromDB()
     return true;
 }
 
-
-bool CategoryList::GetProductsFromDB()
-{
-    return true;
-}
-
 QList<QString> CategoryList::GetCategories()
 {
     return _categories;
 }
-

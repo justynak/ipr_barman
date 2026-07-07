@@ -1,20 +1,17 @@
 #include "customerscanner.h"
+#include <QRandomGenerator>
 
-CustomerScanner::CustomerScanner()
+CustomerScanner::CustomerScanner(BarRepository* repository)
+    : db(repository)
 {
-    db = DatabaseConnector::GetInstance();
-    _id = "";
 }
 
-bool CustomerScanner::ScanCustomerID()
+QString CustomerScanner::ScanCard()
 {
-    _id = db->GetRandomCustomerID();
-    return db->CustomerExists(_id);
+    QList<QString> cards = db->GetCustomerCardNumbers();
+
+    if(cards.isEmpty())
+        return QString("");
+
+    return cards[QRandomGenerator::global()->bounded(cards.size())];
 }
-
-
-CustomerScanner::~CustomerScanner()
-{
-
-}
-

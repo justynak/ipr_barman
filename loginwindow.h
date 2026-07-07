@@ -2,8 +2,8 @@
 #define LOGINWINDOW_H
 
 #include <QWidget>
-#include "loginscanner.h"
-#include "bartender.h"
+#include "cardscanner.h"
+#include "barrepository.h"
 
 
 namespace Ui {
@@ -15,18 +15,19 @@ class LoginWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit LoginWindow(QWidget *parent = 0);
-    ~LoginWindow();
+    LoginWindow(CardScanner* loginScanner, BarRepository* repository, QWidget *parent = nullptr);
+    ~LoginWindow() override;
 
 signals:
     void logged(QString bartenderNumber);
 
 private slots:
-    void on_buttonLogin_clicked();
+    void onLoginClicked();
 
 private:
     Ui::LoginWindow *ui;
-    LoginScanner _loginScanner;
+    CardScanner* _loginScanner;
+    BarRepository* _repository;
 
 };
 

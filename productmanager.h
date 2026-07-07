@@ -2,30 +2,33 @@
 #define PRODUCTMANAGER_H
 #include "categorylist.h"
 #include "product.h"
-#include "order.h"
-#include "databaseconnector.h"
+#include "barrepository.h"
 
 class ProductManager
 {
 
 private:
     CategoryList* _categoryList;
-    Product* _productSelected;
+    Product _productSelected;
+    int _selectedQuantity = 0;
     QList<Product> _availableProducts;
-    DatabaseConnector *db;
+    BarRepository *db;
 
 public:
-    ProductManager();
+    explicit ProductManager(BarRepository* repository);
     ~ProductManager();
-    //void AddProduct(Order o);
-    void SetProducts(QString category);
-    void SetSelectedProduct(Product* p){_productSelected = p;}
-    void ChangeProductNumber(Order o, Product p, uint newNumber);
 
     QList<QString> GetCategoryList();
     QList<Product> GetAvailableProducts(QString category);
-    Product* GetSelectedProduct(){return _productSelected;}
     Product* GetProductByName(QString name);
+
+    // Selection for "add to order": the product plus the quantity the
+    // bartender dialed in the dialog.
+    void SetSelectedProduct(const Product& p) { _productSelected = p; _selectedQuantity = 0; }
+    Product GetSelectedProduct() { return _productSelected; }
+    void SetSelectedQuantity(int quantity) { _selectedQuantity = quantity < 0 ? 0 : quantity; }
+    int GetSelectedQuantity() { return _selectedQuantity; }
+    void ClearSelection() { _productSelected = Product(); _selectedQuantity = 0; }
 
 };
 

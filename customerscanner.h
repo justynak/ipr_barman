@@ -1,19 +1,19 @@
 #ifndef CUSTOMERSCANNER_H
 #define CUSTOMERSCANNER_H
-#include "databaseconnector.h"
+#include "cardscanner.h"
+#include "barrepository.h"
 
-class CustomerScanner
+// Simulator: "scans" the card of a random known loyal customer.
+class CustomerScanner : public CardScanner
 {
 
 private:
-    DatabaseConnector* db;
-    QString _id;
+    BarRepository* db;
 
 public:
-    CustomerScanner();
-    bool ScanCustomerID();
-    QString GetCustomerID(){return _id;}
-    ~CustomerScanner();
+    explicit CustomerScanner(BarRepository* repository);
+
+    QString ScanCard() override;
 };
 
 #endif // CUSTOMERSCANNER_H

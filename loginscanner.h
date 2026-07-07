@@ -1,21 +1,20 @@
 #ifndef LOGINSCANNER_H
 #define LOGINSCANNER_H
 #include <QString>
-#include "databaseconnector.h"
+#include "cardscanner.h"
+#include "barrepository.h"
 
 
-class LoginScanner
+// Simulator: "scans" the card of a random known employee.
+class LoginScanner : public CardScanner
 {
 private:
-    QString _scannedNumber;
-    DatabaseConnector *db;
+    BarRepository *db;
 
 public:
-    LoginScanner();
-    ~LoginScanner();
+    explicit LoginScanner(BarRepository* repository);
 
-    QString GetCardNumber(){return _scannedNumber;}
-    bool ScanCard();
+    QString ScanCard() override;
 };
 
 #endif // LOGINSCANNER_H

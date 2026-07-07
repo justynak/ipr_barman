@@ -2,7 +2,6 @@
 #define EDITWINDOW_H
 
 #include <QWidget>
-#include "detailswindow.h"
 #include "bartender.h"
 
 
@@ -15,24 +14,26 @@ class EditWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit EditWindow(Bartender* bartender, QWidget *parent = 0);
-    ~EditWindow();
+    explicit EditWindow(Bartender* bartender, QWidget *parent = nullptr);
+    ~EditWindow() override;
 
 private slots:
-    void on_box_bills_activated(const QString &arg1);
-    void on_product_list_cellActivated(int row, int column);
-    void on_button_add_product_clicked();
-
-    void on_button_delete_bill_clicked();
-
-    void on_button_print_bill_clicked();
-
-    void on_button_scan_client_card_clicked();
+    void onBillSelected(const QString &label);
+    void onProductCellClicked(int row, int column);
+    void onAddProductClicked();
+    void onDeleteBillClicked();
+    void onPrintBillClicked();
+    void onScanClientCardClicked();
 
 private:
     Ui::EditWindow *ui;
-    DetailsWindow* _detailsWindow;
     Bartender* _bartender;
+
+    void setupProductTable();
+    void refreshBill();
+    void refreshBillsCombo();
+    void updateSummaryLabels();
+    QString formatAmount(Money amount) const;
 };
 
 #endif // EDITWINDOW_H

@@ -4,8 +4,7 @@
 #include <QWidget>
 #include <QDialog>
 
-#include "order.h"
-#include "orderdetails.h"
+#include "draftorder.h"
 
 
 namespace Ui {
@@ -17,16 +16,13 @@ class DetailsWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit DetailsWindow(OrderDetails* o, QWidget *parent = 0);
-    ~DetailsWindow();
-
-private slots:
-    void on_button_ok_clicked();
-    void on_button_discard_clicked();
+    DetailsWindow(DraftOrder draft, QString currency, QWidget *parent = nullptr);
+    ~DetailsWindow() override;
 
 private:
     Ui::DetailsWindow *ui;
-    OrderDetails* _details;
+    DraftOrder _draft;
+    QString _currency;
 
 
 };

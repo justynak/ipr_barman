@@ -1,52 +1,51 @@
 #ifndef ORDERMANAGER_H
 #define ORDERMANAGER_H
 #include "productmanager.h"
-#include "orderdetails.h"
-#include "customerscanner.h"
-#include "order.h"
-#include "databaseconnector.h"
-#include "orderlist.h"
+#include "cardscanner.h"
+#include "draftorder.h"
+#include "barrepository.h"
 
+// Keeps the drafts being composed at the bar. Every mutation is memory-only;
+// the DB is touched exactly once per order, in FinalizeOrder.
 class OrderManager
 {
 
 private:
     ProductManager* _pManager;
-    OrderDetails* _oDetails;
-    OrderList* _orderList;
-    Order* _selectedOrder;
-    DatabaseConnector* db;
+    BarRepository* db;
+    CardScanner* _customerScanner;
+
+    QList<DraftOrder> _drafts;
+    int _selected = -1;     // index into _drafts, -1 = none
+    int _nextDraftNumber = 1;
+
+    DraftOrder* Selected();
 
 public:
-    OrderManager(){}
-    OrderManager(QString bartenderNumber);
+    OrderManager(BarRepository* repository, CardScanner* customerScanner);
     ~OrderManager();
 
-    bool SetSelectedOrder(Order* o);
-    bool SetSelectedOrder(QString name);
-    bool SetSelectedProduct(Product* p){_pManager->SetSelectedProduct(p); return true;}
-
-    bool CreateOrder(QString bartenderNumber);
+    QList<QString> GetOrders();
+    bool CreateOrder();
+    bool SetSelectedOrder(QString label);
     bool DeleteOrder();
-    bool AddProduct();
-    bool ChangeProductNumber(Product* p, int newNumber);
 
-    bool DeleteProduct(Product *p);
+    bool AddProduct();
+    bool ChangeProductQuantity(int productId, int quantity);
+    bool DeleteProduct(int productId);
+
     bool ScanCustomer();
 
-    bool CloseOrder();
+    // The one write: composes the order, its lines and the ledger movements
+    // in a single repository transaction, then drops the draft from memory.
+    bool FinalizeOrder(int shiftId);
 
-    bool RefreshData();
-
-    QList<QString> GetOrders();
-    QList<Product> GetProducts();
-    QString GetSelectedOrderNumber(){return _selectedOrder->GetOrderNumber();}
-    Order* GetSelectedOrder(){return _selectedOrder;}
+    bool HasSelectedOrder(){return _selected >= 0;}
+    DraftOrder GetSelectedOrder();
+    QString GetSelectedOrderNumber();
+    QString GetCustomerID();
+    Money GetCost();
     ProductManager* GetProductManager(){return _pManager;}
-
-    QString GetCustomerID(){return _selectedOrder->GetCustomerID();}
-    OrderDetails* GetOrderDetails(){return _oDetails;}
-    double GetCost(){return _oDetails->GetCost();}
 };
 
 #endif // ORDERMANAGER_H

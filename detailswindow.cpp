@@ -1,11 +1,13 @@
 #include "detailswindow.h"
 #include "ui_detailswindow.h"
 
-DetailsWindow::DetailsWindow(OrderDetails *o, QWidget *parent) :
-    QDialog(parent), _details(o),
-    ui(new Ui::DetailsWindow)
+DetailsWindow::DetailsWindow(DraftOrder draft, QString currency, QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::DetailsWindow),
+    _draft(draft),
+    _currency(currency)
 {
-    ui->setupUi(this); 
+    ui->setupUi(this);
 
     //wyświetlanie szczegółów rachunku
 
@@ -14,57 +16,40 @@ DetailsWindow::DetailsWindow(OrderDetails *o, QWidget *parent) :
     ui->table_costs->setColumnWidth(0, 152);
     ui->table_costs->setColumnWidth(1, 50);
     ui->table_costs->setColumnWidth(2, 50);
-    QStringList a;
-    a<<"Produkt"<<"Ilość"<<"Cena";
-    ui->table_costs->setHorizontalHeaderLabels(a);
+    QStringList headers;
+    headers << tr("Produkt") << tr("Ilość") << tr("Cena");
+    ui->table_costs->setHorizontalHeaderLabels(headers);
 
 
-    QList<Product>* list = _details->GetProductList();
+    QList<OrderLine> lines = _draft.GetLines();
 
-    for(int i=0; i<list->count(); ++i)
+    for(int i = 0; i < lines.count(); ++i)
     {
         QTableWidgetItem* item[3];
-        for(int k=0; k<3; ++k)
+        for(int k = 0; k < 3; ++k)
         {
             item[k] = new QTableWidgetItem();
             item[k]->setFlags(item[k]->flags() ^ Qt::ItemIsEditable);
         }
 
-        Product p = list->at(i);
-
         ui->table_costs->insertRow(i);
-        item[0]->setText(p.GetName());
-        item[1]->setText(tr("%1").arg(p.GetNumber()));
-        item[2]->setText(tr("%1").arg(p.GetPrice()));
+        item[0]->setText(lines[i].productName);
+        item[1]->setText(tr("%1").arg(lines[i].quantity));
+        item[2]->setText(moneyToDecimalString(lines[i].unitPrice));
 
-        for(unsigned int j=0; j<3; ++j)
-        {
+        for(int j = 0; j < 3; ++j)
             ui->table_costs->setItem(i, j, item[j]);
-        }
     }
 
-    ui->label_bill_number->setText(tr("Numer rachunku: %1").arg(_details->GetOrderNumber()));
-    ui->label_value->setText(tr("%1 zł").arg(_details->GetCost()));
+    ui->label_bill_number->setText(tr("Numer rachunku: %1").arg(_draft.GetLabel()));
+    ui->label_value->setText(QString("%1 %2").arg(moneyToDecimalString(_draft.Subtotal())).arg(_currency));
+    ui->labelDiscount->setText(QString("%1 %2").arg(moneyToDecimalString(_draft.Total())).arg(_currency));
 
-    double discount = _details->GetDiscount();
-    double priceReduction = 1.00 - discount;
-    double discounted = _details->GetCost() * priceReduction;
-    ui->labelDiscount->setText(tr("%1 zł").arg(discounted));
-
+    connect(ui->button_ok, &QPushButton::clicked, this, &DetailsWindow::accept);
+    connect(ui->button_discard, &QPushButton::clicked, this, &DetailsWindow::reject);
 }
 
 DetailsWindow::~DetailsWindow()
 {
     delete ui;
-    //delete _details;
-}
-
-void DetailsWindow::on_button_ok_clicked()
-{
-    this->done(1);
-}
-
-void DetailsWindow::on_button_discard_clicked()
-{
-    this->done(0);
 }

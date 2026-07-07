@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(ipr_barman LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -12,37 +13,36 @@ find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Sql Test)
 
 add_library(barman_core STATIC
     ordermanager.cpp
-    orderlist.cpp
-    order.cpp
-    orderdetails.cpp
-    product.cpp
+    draftorder.cpp
+    businessday.cpp
     productmanager.cpp
     categorylist.cpp
     customerscanner.cpp
     bartender.cpp
-    databaseconnector.cpp
+    mysqlbarrepository.cpp
     loginscanner.cpp
 
+    barrepository.h
+    cardscanner.h
     ordermanager.h
-    orderlist.h
-    order.h
-    orderdetails.h
+    draftorder.h
+    businessday.h
+    money.h
+    employee.h
+    customer.h
     product.h
     productmanager.h
     categorylist.h
     customerscanner.h
     bartender.h
-    databaseconnector.h
+    mysqlbarrepository.h
     loginscanner.h
 )
 
 target_include_directories(barman_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-# Widgets is needed only for the QMessageBox inside DatabaseConnector::connect();
-# it moves out of the data layer in the repository refactor (phase 2).
-target_link_libraries(barman_core
-    PUBLIC Qt5::Core Qt5::Sql
-    PRIVATE Qt5::Widgets
-)
+target_link_libraries(barman_core PUBLIC Qt5::Core Qt5::Sql)
+# The code uses range-for; keep the foreach macro from creeping back in.
+target_compile_definitions(barman_core PUBLIC QT_NO_FOREACH)
 
 add_executable(ipr_barman
     main.cpp
