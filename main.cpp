@@ -11,10 +11,10 @@ int main(int argc, char *argv[])
 
     BarDatabaseConfig config;
     config.hostName = "localhost";
-    config.databaseName = "mydb";
+    config.databaseName = "barman_v2";
     config.userName = "bar";
     config.password = "kelner2015";
-    config.barName = "Boboli_8_Warszawa";
+    config.barName = "Boboli 8, Warszawa";
 
     MySqlBarRepository repository(config);
 

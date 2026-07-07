@@ -13,35 +13,40 @@ private:
     ScriptedCardScanner* scanner;
     OrderManager* manager;
 
-    Product mojito() { return Product("Mojito", 2, 15.5); }
+    Product mojito() { return Product(1, "Mojito", 2200, "Cocktails", 10); }
+
+    void addToDraft(const Product& p, int quantity)
+    {
+        manager->GetProductManager()->SetSelectedProduct(p);
+        manager->GetProductManager()->SetSelectedQuantity(quantity);
+        manager->AddProduct();
+    }
 
 private slots:
     void init();
     void cleanup();
 
-    void startsWithNoSelectedOrder();
-    void listsExistingOrdersOfBartender();
-    void createOrderStoresAndSelectsIt();
-    void selectOrderByNameLoadsProductsAndCost();
-    void selectUnknownOrderFails();
-    void addProductStoresLineAndUpdatesCost();
-    void changeProductNumberUpdatesRepositoryAndCost();
-    void deleteProductRemovesLineAndUpdatesCost();
-    void deleteOrderRemovesItFromRepository();
-    void closeOrderMarksItClosed();
-    void scanKnownCustomerSetsDiscountAndCustomer();
-    void scanUnknownCustomerGivesNoDiscount();
-    void scanWithoutCardGivesNoDiscount();
+    void startsWithNoDrafts();
+    void createOrderSelectsANewDraft();
+    void draftsGetDistinctLabels();
+    void selectDraftByLabel();
+    void selectUnknownLabelFails();
+    void deleteDraftIsMemoryOnly();
+    void addProductRequiresSelectionAndQuantity();
+    void changeQuantityAndCost();
+    void deleteProductLine();
+    void scanKnownCustomerCopiesDiscount();
+    void scanUnknownCustomerLeavesDraftUntouched();
+    void scanWithoutCardFails();
 };
 
 void TestOrderManager::init()
 {
     repo = new FakeBarRepository();
-    repo->AddBartender("B1", "Jan", "Kowalski");
-    repo->customerCards << "C1";
+    repo->AddCustomer(5, "1001");
 
     scanner = new ScriptedCardScanner();
-    manager = NULL;
+    manager = new OrderManager(repo, scanner);
 }
 
 void TestOrderManager::cleanup()
@@ -51,179 +56,149 @@ void TestOrderManager::cleanup()
     delete repo;
 }
 
-void TestOrderManager::startsWithNoSelectedOrder()
+void TestOrderManager::startsWithNoDrafts()
 {
-    manager = new OrderManager(repo, scanner, "B1");
-
+    QVERIFY(!manager->HasSelectedOrder());
     QCOMPARE(manager->GetSelectedOrderNumber(), QString(""));
     QCOMPARE(manager->GetCustomerID(), QString(""));
     QCOMPARE(manager->GetOrders().size(), 0);
-    QCOMPARE(manager->GetProducts().size(), 0);
-    QCOMPARE(manager->GetCost(), 0.0);
+    QCOMPARE(manager->GetCost(), Money(0));
+
+    // nothing to mutate: everything degrades gracefully
+    QVERIFY(!manager->AddProduct());
+    QVERIFY(!manager->DeleteOrder());
+    QVERIFY(!manager->ScanCustomer());
+    QVERIFY(!manager->FinalizeOrder(1));
 }
 
-void TestOrderManager::listsExistingOrdersOfBartender()
+void TestOrderManager::createOrderSelectsANewDraft()
 {
-    Order o1, o2, other;
-    repo->CreateOrder("B1", &o1);
-    repo->CreateOrder("B1", &o2);
-    repo->CreateOrder("B2", &other);
+    QVERIFY(manager->CreateOrder());
 
-    manager = new OrderManager(repo, scanner, "B1");
-
-    QList<QString> orders = manager->GetOrders();
-    QCOMPARE(orders.size(), 2);
-    QVERIFY(orders.contains(o1.GetOrderNumber()));
-    QVERIFY(orders.contains(o2.GetOrderNumber()));
-    QVERIFY(!orders.contains(other.GetOrderNumber()));
-}
-
-void TestOrderManager::createOrderStoresAndSelectsIt()
-{
-    manager = new OrderManager(repo, scanner, "B1");
-
-    QVERIFY(manager->CreateOrder("B1"));
-
-    QString number = manager->GetSelectedOrderNumber();
-    QVERIFY(number != "");
-    QVERIFY(repo->orders.contains(number));
+    QVERIFY(manager->HasSelectedOrder());
     QCOMPARE(manager->GetOrders().size(), 1);
+    QCOMPARE(manager->GetSelectedOrderNumber(), manager->GetOrders().first());
 }
 
-void TestOrderManager::selectOrderByNameLoadsProductsAndCost()
+void TestOrderManager::draftsGetDistinctLabels()
 {
-    Order o;
-    repo->CreateOrder("B1", &o);
-    repo->AddProductToOrder(o.GetOrderNumber(), mojito());
+    manager->CreateOrder();
+    manager->CreateOrder();
+    manager->CreateOrder();
 
-    manager = new OrderManager(repo, scanner, "B1");
-
-    QVERIFY(manager->SetSelectedOrder(o.GetOrderNumber()));
-    QCOMPARE(manager->GetSelectedOrderNumber(), o.GetOrderNumber());
-    QCOMPARE(manager->GetProducts().size(), 1);
-    QCOMPARE(manager->GetCost(), 2 * 15.5);
+    QList<QString> labels = manager->GetOrders();
+    QCOMPARE(labels.size(), 3);
+    QVERIFY(labels[0] != labels[1]);
+    QVERIFY(labels[1] != labels[2]);
 }
 
-void TestOrderManager::selectUnknownOrderFails()
+void TestOrderManager::selectDraftByLabel()
 {
-    manager = new OrderManager(repo, scanner, "B1");
+    manager->CreateOrder();
+    QString first = manager->GetSelectedOrderNumber();
+    addToDraft(mojito(), 2);
 
-    QVERIFY(!manager->SetSelectedOrder(QString("no-such-bill")));
-    QCOMPARE(manager->GetSelectedOrderNumber(), QString(""));
+    manager->CreateOrder();
+    QVERIFY(manager->GetSelectedOrderNumber() != first);
+
+    QVERIFY(manager->SetSelectedOrder(first));
+    QCOMPARE(manager->GetSelectedOrderNumber(), first);
+    QCOMPARE(manager->GetSelectedOrder().GetLines().size(), 1);
 }
 
-void TestOrderManager::addProductStoresLineAndUpdatesCost()
+void TestOrderManager::selectUnknownLabelFails()
 {
-    manager = new OrderManager(repo, scanner, "B1");
-    manager->CreateOrder("B1");
+    manager->CreateOrder();
+    QString label = manager->GetSelectedOrderNumber();
 
-    Product p = mojito();
-    manager->SetSelectedProduct(&p);
-    QVERIFY(manager->AddProduct());
-
-    QString number = manager->GetSelectedOrderNumber();
-    QCOMPARE(repo->orders[number].items.size(), 1);
-    QCOMPARE(repo->orders[number].items.first().GetName(), QString("Mojito"));
-    QCOMPARE(manager->GetProducts().size(), 1);
-    QCOMPARE(manager->GetCost(), 2 * 15.5);
+    QVERIFY(!manager->SetSelectedOrder(QString("no-such-draft")));
+    QCOMPARE(manager->GetSelectedOrderNumber(), label);
 }
 
-void TestOrderManager::changeProductNumberUpdatesRepositoryAndCost()
+void TestOrderManager::deleteDraftIsMemoryOnly()
 {
-    manager = new OrderManager(repo, scanner, "B1");
-    manager->CreateOrder("B1");
-
-    Product p = mojito();
-    manager->SetSelectedProduct(&p);
-    manager->AddProduct();
-
-    QVERIFY(manager->ChangeProductNumber(&p, 5));
-
-    QString number = manager->GetSelectedOrderNumber();
-    QCOMPARE(repo->orders[number].items.first().GetNumber(), 5u);
-    QCOMPARE(manager->GetCost(), 5 * 15.5);
-}
-
-void TestOrderManager::deleteProductRemovesLineAndUpdatesCost()
-{
-    manager = new OrderManager(repo, scanner, "B1");
-    manager->CreateOrder("B1");
-
-    Product p = mojito();
-    manager->SetSelectedProduct(&p);
-    manager->AddProduct();
-
-    QVERIFY(manager->DeleteProduct(&p));
-
-    QString number = manager->GetSelectedOrderNumber();
-    QCOMPARE(repo->orders[number].items.size(), 0);
-    QCOMPARE(manager->GetProducts().size(), 0);
-    QCOMPARE(manager->GetCost(), 0.0);
-}
-
-void TestOrderManager::deleteOrderRemovesItFromRepository()
-{
-    manager = new OrderManager(repo, scanner, "B1");
-    manager->CreateOrder("B1");
-    QString number = manager->GetSelectedOrderNumber();
-
-    Product p = mojito();
-    manager->SetSelectedProduct(&p);
-    manager->AddProduct();
+    manager->CreateOrder();
+    addToDraft(mojito(), 2);
 
     QVERIFY(manager->DeleteOrder());
 
-    QVERIFY(!repo->orders.contains(number));
+    QCOMPARE(manager->GetOrders().size(), 0);
+    QVERIFY(!manager->HasSelectedOrder());
+    QCOMPARE(repo->finalizedOrders.size(), 0);
+    QCOMPARE(repo->movements.size(), 0);
 }
 
-void TestOrderManager::closeOrderMarksItClosed()
+void TestOrderManager::addProductRequiresSelectionAndQuantity()
 {
-    manager = new OrderManager(repo, scanner, "B1");
-    manager->CreateOrder("B1");
-    QString number = manager->GetSelectedOrderNumber();
+    manager->CreateOrder();
 
-    QVERIFY(manager->CloseOrder());
+    // no product selected
+    QVERIFY(!manager->AddProduct());
 
-    QVERIFY(repo->orders[number].closed);
+    // product selected but quantity 0
+    manager->GetProductManager()->SetSelectedProduct(mojito());
+    QVERIFY(!manager->AddProduct());
+
+    manager->GetProductManager()->SetSelectedQuantity(2);
+    QVERIFY(manager->AddProduct());
+    QCOMPARE(manager->GetSelectedOrder().GetLines().size(), 1);
+    QCOMPARE(manager->GetCost(), Money(4400));
 }
 
-void TestOrderManager::scanKnownCustomerSetsDiscountAndCustomer()
+void TestOrderManager::changeQuantityAndCost()
 {
-    manager = new OrderManager(repo, scanner, "B1");
-    manager->CreateOrder("B1");
-    QString number = manager->GetSelectedOrderNumber();
+    manager->CreateOrder();
+    addToDraft(mojito(), 2);
 
-    scanner->SetCard("C1");
+    QVERIFY(manager->ChangeProductQuantity(1, 5));
+    QCOMPARE(manager->GetCost(), Money(5 * 2200));
+
+    QVERIFY(!manager->ChangeProductQuantity(99, 5));
+}
+
+void TestOrderManager::deleteProductLine()
+{
+    manager->CreateOrder();
+    addToDraft(mojito(), 2);
+
+    QVERIFY(manager->DeleteProduct(1));
+    QCOMPARE(manager->GetSelectedOrder().GetLines().size(), 0);
+    QCOMPARE(manager->GetCost(), Money(0));
+
+    QVERIFY(!manager->DeleteProduct(1));
+}
+
+void TestOrderManager::scanKnownCustomerCopiesDiscount()
+{
+    manager->CreateOrder();
+
+    scanner->SetCard("1001");
     QVERIFY(manager->ScanCustomer());
 
-    QCOMPARE(manager->GetCustomerID(), QString("C1"));
-    QCOMPARE(repo->orders[number].customerID, QString("C1"));
-    QCOMPARE(manager->GetOrderDetails()->GetDiscount(), LOYAL_CUSTOMER_DISCOUNT);
+    QCOMPARE(manager->GetCustomerID(), QString("1001"));
+    DraftOrder draft = manager->GetSelectedOrder();
+    QCOMPARE(draft.GetCustomerId(), 5);
+    QCOMPARE(draft.GetDiscountRate(), LOYAL_CUSTOMER_DISCOUNT);
 }
 
-void TestOrderManager::scanUnknownCustomerGivesNoDiscount()
+void TestOrderManager::scanUnknownCustomerLeavesDraftUntouched()
 {
-    manager = new OrderManager(repo, scanner, "B1");
-    manager->CreateOrder("B1");
-    QString number = manager->GetSelectedOrderNumber();
+    manager->CreateOrder();
 
     scanner->SetCard("stranger");
     QVERIFY(!manager->ScanCustomer());
 
     QCOMPARE(manager->GetCustomerID(), QString(""));
-    QCOMPARE(repo->orders[number].customerID, QString(""));
-    QCOMPARE(manager->GetOrderDetails()->GetDiscount(), 0.0);
+    QCOMPARE(manager->GetSelectedOrder().GetDiscountRate(), 0.0);
 }
 
-void TestOrderManager::scanWithoutCardGivesNoDiscount()
+void TestOrderManager::scanWithoutCardFails()
 {
-    manager = new OrderManager(repo, scanner, "B1");
-    manager->CreateOrder("B1");
+    manager->CreateOrder();
 
     scanner->SetCard("");
     QVERIFY(!manager->ScanCustomer());
-
-    QCOMPARE(manager->GetOrderDetails()->GetDiscount(), 0.0);
+    QCOMPARE(manager->GetSelectedOrder().GetDiscountRate(), 0.0);
 }
 
 QTEST_APPLESS_MAIN(TestOrderManager)

@@ -3,19 +3,13 @@
 ProductManager::ProductManager(BarRepository* repository)
 {
     db = repository;
+    _selectedQuantity = 0;
     _categoryList = new CategoryList(db);
 }
 
 ProductManager::~ProductManager()
 {
     delete _categoryList;
-}
-
-void ProductManager::SetProducts(QString category)
-{
-    _availableProducts = db->GetProductsFromCategory(category);
-    if(!_availableProducts.isEmpty())
-        _productSelected = _availableProducts.first();
 }
 
 QList<QString> ProductManager::GetCategoryList()

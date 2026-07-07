@@ -16,21 +16,29 @@ private slots:
     void cleanup();
 
     void listsCategoriesFromRepository();
-    void listsProductsOfCategory();
+    void listsProductsOfCategoryWithDerivedAvailability();
     void productByNameReturnsMatch();
     void productByNameReturnsNullForUnknown();
-    void setProductsOnEmptyCategoryIsSafe();
-    void setSelectedProductCopiesTheProduct();
+    void selectionHoldsProductAndQuantity();
+    void selectedQuantityNeverGoesNegative();
+    void clearSelectionResetsEverything();
 };
 
 void TestProductManager::init()
 {
     repo = new FakeBarRepository();
 
-    QList<Product> drinks;
-    drinks.append(Product("Mojito", 4, 15.5));
-    drinks.append(Product("Cuba Libre", 2, 18.0));
-    repo->productsByCategory["Drinks"] = drinks;
+    repo->AddIngredient(1, 700);  // rum: 4 cl per drink -> 175
+    repo->AddIngredient(2, 50);   // lime: 1 per drink   -> 50
+
+    QList<FakeBarRepository::RecipeLine> mojitoRecipe;
+    mojitoRecipe.append(FakeBarRepository::RecipeLine(1, 4));
+    mojitoRecipe.append(FakeBarRepository::RecipeLine(2, 1));
+    repo->AddProduct(Product(1, "Mojito", 2200, "Cocktails", 0), mojitoRecipe);
+
+    QList<FakeBarRepository::RecipeLine> shotRecipe;
+    shotRecipe.append(FakeBarRepository::RecipeLine(1, 4));
+    repo->AddProduct(Product(2, "Rum shot", 1200, "Shots", 0), shotRecipe);
 
     manager = new ProductManager(repo);
 }
@@ -44,49 +52,61 @@ void TestProductManager::cleanup()
 void TestProductManager::listsCategoriesFromRepository()
 {
     QList<QString> categories = manager->GetCategoryList();
-    QCOMPARE(categories.size(), 1);
-    QCOMPARE(categories.first(), QString("Drinks"));
+    QCOMPARE(categories.size(), 2);
+    QVERIFY(categories.contains("Cocktails"));
+    QVERIFY(categories.contains("Shots"));
 }
 
-void TestProductManager::listsProductsOfCategory()
+void TestProductManager::listsProductsOfCategoryWithDerivedAvailability()
 {
-    QList<Product> products = manager->GetAvailableProducts("Drinks");
-    QCOMPARE(products.size(), 2);
+    QList<Product> products = manager->GetAvailableProducts("Cocktails");
+    QCOMPARE(products.size(), 1);
     QCOMPARE(products.first().GetName(), QString("Mojito"));
+    QCOMPARE(products.first().GetAvailable(), 50);   // limited by limes
 }
 
 void TestProductManager::productByNameReturnsMatch()
 {
-    manager->GetAvailableProducts("Drinks");
+    manager->GetAvailableProducts("Shots");
 
-    Product* p = manager->GetProductByName("Cuba Libre");
+    Product* p = manager->GetProductByName("Rum shot");
     QVERIFY(p != NULL);
-    QCOMPARE(p->GetPrice(), 18.0);
+    QCOMPARE(p->GetPrice(), Money(1200));
 }
 
 void TestProductManager::productByNameReturnsNullForUnknown()
 {
-    manager->GetAvailableProducts("Drinks");
+    manager->GetAvailableProducts("Shots");
 
     QVERIFY(manager->GetProductByName("Absinthe") == NULL);
 }
 
-void TestProductManager::setProductsOnEmptyCategoryIsSafe()
+void TestProductManager::selectionHoldsProductAndQuantity()
 {
-    manager->SetProducts("NoSuchCategory");
+    manager->SetSelectedProduct(Product(1, "Mojito", 2200, "Cocktails", 50));
+    manager->SetSelectedQuantity(3);
 
-    QVERIFY(manager->GetSelectedProduct() != NULL);
-    QVERIFY(manager->GetProductByName("Mojito") == NULL);
+    QCOMPARE(manager->GetSelectedProduct().GetId(), 1);
+    QCOMPARE(manager->GetSelectedQuantity(), 3);
 }
 
-void TestProductManager::setSelectedProductCopiesTheProduct()
+void TestProductManager::selectedQuantityNeverGoesNegative()
 {
-    Product original("Mojito", 2, 15.5);
-    manager->SetSelectedProduct(&original);
+    manager->SetSelectedProduct(Product(1, "Mojito", 2200, "Cocktails", 50));
+    manager->SetSelectedQuantity(-4);
 
-    original.SetNumber(9);
+    QCOMPARE(manager->GetSelectedQuantity(), 0);
+}
 
-    QCOMPARE(manager->GetSelectedProduct()->GetNumber(), 2u);
+void TestProductManager::clearSelectionResetsEverything()
+{
+    manager->SetSelectedProduct(Product(1, "Mojito", 2200, "Cocktails", 50));
+    manager->SetSelectedQuantity(3);
+
+    manager->ClearSelection();
+
+    QVERIFY(!manager->GetSelectedProduct().IsValid());
+    QCOMPARE(manager->GetSelectedQuantity(), 0);
 }
 
 QTEST_APPLESS_MAIN(TestProductManager)

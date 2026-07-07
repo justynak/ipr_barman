@@ -1,11 +1,11 @@
 #include "detailswindow.h"
 #include "ui_detailswindow.h"
 
-DetailsWindow::DetailsWindow(OrderDetails *o, QWidget *parent) :
-    QDialog(parent), _details(o),
+DetailsWindow::DetailsWindow(DraftOrder draft, QWidget *parent) :
+    QDialog(parent), _draft(draft),
     ui(new Ui::DetailsWindow)
 {
-    ui->setupUi(this); 
+    ui->setupUi(this);
 
     //wyświetlanie szczegółów rachunku
 
@@ -19,7 +19,7 @@ DetailsWindow::DetailsWindow(OrderDetails *o, QWidget *parent) :
     ui->table_costs->setHorizontalHeaderLabels(a);
 
 
-    QList<Product> list = _details->GetProductList();
+    QList<OrderLine> list = _draft.GetLines();
 
     for(int i=0; i<list.count(); ++i)
     {
@@ -30,12 +30,12 @@ DetailsWindow::DetailsWindow(OrderDetails *o, QWidget *parent) :
             item[k]->setFlags(item[k]->flags() ^ Qt::ItemIsEditable);
         }
 
-        Product p = list.at(i);
+        OrderLine line = list.at(i);
 
         ui->table_costs->insertRow(i);
-        item[0]->setText(p.GetName());
-        item[1]->setText(tr("%1").arg(p.GetNumber()));
-        item[2]->setText(tr("%1").arg(p.GetPrice()));
+        item[0]->setText(line.productName);
+        item[1]->setText(tr("%1").arg(line.quantity));
+        item[2]->setText(moneyToDecimalString(line.unitPrice));
 
         for(unsigned int j=0; j<3; ++j)
         {
@@ -43,17 +43,15 @@ DetailsWindow::DetailsWindow(OrderDetails *o, QWidget *parent) :
         }
     }
 
-    ui->label_bill_number->setText(tr("Numer rachunku: %1").arg(_details->GetOrderNumber()));
-    ui->label_value->setText(tr("%1 zł").arg(_details->GetCost()));
-
-    ui->labelDiscount->setText(tr("%1 zł").arg(_details->GetDiscountedCost()));
+    ui->label_bill_number->setText(tr("Numer rachunku: %1").arg(_draft.GetLabel()));
+    ui->label_value->setText(tr("%1 zł").arg(moneyToDecimalString(_draft.Subtotal())));
+    ui->labelDiscount->setText(tr("%1 zł").arg(moneyToDecimalString(_draft.Total())));
 
 }
 
 DetailsWindow::~DetailsWindow()
 {
     delete ui;
-    //delete _details;
 }
 
 void DetailsWindow::on_button_ok_clicked()

@@ -6,8 +6,6 @@
 #include <QStringList>
 
 #include "barrepository.h"
-#include "product.h"
-#include "order.h"
 
 struct BarDatabaseConfig
 {
@@ -24,6 +22,8 @@ private:
     BarDatabaseConfig _config;
     QSqlDatabase db;
 
+    QString BarCurrency();
+
 public:
     explicit MySqlBarRepository(const BarDatabaseConfig& config);
     ~MySqlBarRepository();
@@ -32,26 +32,19 @@ public:
     bool Open();
     QSqlError LastError() const { return db.lastError(); }
 
-    bool BartenderExists(QString cardNumber);
-    QString GetBartenderName(QString cardNumber);
-    QString GetBartenderSurname(QString cardNumber);
-    QList<QString> GetBartenderCardNumbers();
+    Employee FindEmployeeByCard(QString cardNumber);
+    QList<QString> GetEmployeeCardNumbers();
+    int OpenShift(int employeeId, QDateTime openedAt);
+    bool CloseShift(int shiftId, QDateTime closedAt);
 
     QList<QString> GetCategories();
     QList<Product> GetProductsFromCategory(QString category);
 
-    bool CustomerExists(QString cardNumber);
+    Customer FindCustomerByCard(QString cardNumber);
     QList<QString> GetCustomerCardNumbers();
-    bool SetCustomerIDinOrder(QString cardNumber, QString orderNumber);
 
-    QList<Order> GetOrders(QString bartenderNumber);
-    QList<Product> GetProductsFromBill(QString billNumber);
-    bool CreateOrder(QString bartenderNumber, Order* newOrder);
-    bool RemoveOrder(QString billNumber);
-    bool CloseOrder(QString billNumber);
-    bool AddProductToOrder(QString billNumber, Product p);
-    bool RemoveProductFromOrder(QString billNumber, Product p);
-    bool ChangeProductNumber(QString billNumber, Product p);
+    bool FinalizeOrder(const DraftOrder& draft, int shiftId,
+                       QDate businessDay, QDateTime createdAt);
 };
 
 #endif // MYSQLBARREPOSITORY_H
