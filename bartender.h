@@ -13,6 +13,7 @@ class Bartender
 private:
     Employee _employee;
     int _shiftId;
+    QString _currency;
 
     OrderManager* _oManager;
     BarRepository *db;
@@ -26,6 +27,7 @@ public:
     QString GetSurname(){return _employee.lastName;}
     QString GetRole(){return _employee.role;}
     int GetShiftId(){return _shiftId;}
+    QString GetCurrency(){return _currency;}
 
     bool AddProduct(){return _oManager->AddProduct();}
     bool ChangeProductQuantity(int productId, int quantity){return _oManager->ChangeProductQuantity(productId, quantity);}

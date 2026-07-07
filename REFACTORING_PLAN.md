@@ -5,6 +5,45 @@ stock counters) to `schema_v2.sql` (surrogate ids, in-memory draft orders,
 single-transaction finalize, append-only ingredient ledger), with a test
 harness in place *before* the behaviour-changing work starts.
 
+## Status (2026-07-07)
+
+Phases 0–4 are implemented, each as one PR in a stacked chain (merge in
+order, or retarget each PR's base to `master` as its predecessor merges):
+
+| Phase | PR | Branch | State |
+|-------|----|--------|-------|
+| 0 — test harness | #2 | `test/qttest-harness` | done, CI green |
+| 1 — pin domain, fix UB | #3 | `refactor/phase1-domain-tests` | done, CI green |
+| 2 — repository seam | #4 | `refactor/phase2-repository-seam` | done |
+| 3 — schema v2 migration | #5 | `refactor/phase3-schema-v2` | done |
+| 4 — UI cleanup | #6 | `refactor/phase4-ui-cleanup` | done |
+| 5 — modernization sweep | — | — | not started (optional) |
+
+Deviations from / additions to the original plan, discovered while
+implementing:
+
+- Phase 1 also fixed a B7-class bug the plan missed: the `Bartender`
+  *default* ctor left `_oManager` uninitialized while the dtor deleted it.
+- Phase 2 already moved `ProductManager`'s selected product to value
+  semantics (the plan had no owner for that dangling-pointer risk), removed
+  the dead `CategoryList::GetProductsFromDB` / `OrderManager::RefreshData` /
+  `ProductManager::ChangeProductNumber`, and made `ScanCustomer` grant the
+  discount only after `CustomerExists` — pulling part of the phase-3
+  "validated card" rule forward.
+- Phase 3: `DraftOrder::AddProduct` *merges* lines with the same product id
+  (v1 appended duplicate rows); quantity ≤ 0 in `ChangeQuantity` removes the
+  line. `Product` keeps a derived `available` field filled by the repository
+  query. The optional MySQL-service-container CI job was **not** added —
+  worth a follow-up PR if the SQL should be integration-tested.
+- Phase 4 renamed all slots away from the `on_<object>_<signal>` pattern:
+  the old code both auto-connected them (`connectSlotsByName`) *and*
+  connected some explicitly, so several handlers fired twice per click.
+  `ManageProductWindow` lost its approve-time stock mutation (stock is
+  ledger-derived since phase 3) and its unused `productSelected` member;
+  `DetailsWindow` takes the currency as a ctor argument.
+- Money display everywhere is `moneyToDecimalString()` + `bar.currency`
+  (phase 3 groundwork made this trivial in phase 4).
+
 ## 1. Current state assessment
 
 Layering is actually recognizable — UI (`*window.cpp`) → facade (`Bartender`)

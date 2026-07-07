@@ -22,8 +22,6 @@ private:
     BarDatabaseConfig _config;
     QSqlDatabase db;
 
-    QString BarCurrency();
-
 public:
     explicit MySqlBarRepository(const BarDatabaseConfig& config);
     ~MySqlBarRepository();
@@ -42,6 +40,8 @@ public:
 
     Customer FindCustomerByCard(QString cardNumber);
     QList<QString> GetCustomerCardNumbers();
+
+    QString GetBarCurrency();
 
     bool FinalizeOrder(const DraftOrder& draft, int shiftId,
                        QDate businessDay, QDateTime createdAt);

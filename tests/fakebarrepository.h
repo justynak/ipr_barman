@@ -205,6 +205,11 @@ public:
         return customers.keys();
     }
 
+    QString GetBarCurrency()
+    {
+        return currency;
+    }
+
     bool FinalizeOrder(const DraftOrder& draft, int shiftId,
                        QDate businessDay, QDateTime createdAt)
     {

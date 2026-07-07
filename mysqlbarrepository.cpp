@@ -21,7 +21,7 @@ bool MySqlBarRepository::Open()
     return db.open();
 }
 
-QString MySqlBarRepository::BarCurrency()
+QString MySqlBarRepository::GetBarCurrency()
 {
     QSqlQuery q(db);
     q.prepare("SELECT currency FROM bar WHERE name = :bar");
@@ -171,7 +171,7 @@ bool MySqlBarRepository::FinalizeOrder(const DraftOrder& draft, int shiftId,
     if(draft.IsEmpty())
         return false;
 
-    QString currency = BarCurrency();
+    QString currency = GetBarCurrency();
 
     if(!db.transaction())
         return false;
