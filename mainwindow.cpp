@@ -3,6 +3,8 @@
 #include "loginwindow.h"
 #include "editwindow.h"
 
+#include <QDateTime>
+
 MainWindow::MainWindow(BarRepository* repository, CardScanner* loginScanner,
                        CardScanner* customerScanner, QWidget *parent) :
     QMainWindow(parent),
@@ -21,6 +23,9 @@ MainWindow::MainWindow(BarRepository* repository, CardScanner* loginScanner,
 
 MainWindow::~MainWindow()
 {
+    if(_bartender != NULL)
+        _repository->CloseShift(_bartender->GetShiftId(), QDateTime::currentDateTime());
+
     delete ui;
     delete _bartender;
 }
@@ -32,9 +37,16 @@ void MainWindow::SetLoggingWindow()
     this->setCentralWidget(_loginWindow);
 }
 
-void MainWindow::SetEditWindow(QString b)
+void MainWindow::SetEditWindow(QString cardNumber)
 {
-    _bartender = new Bartender(_repository, _customerScanner, b);
+    Employee employee = _repository->FindEmployeeByCard(cardNumber);
+    if(!employee.IsValid())
+        return;
+
+    // Logging in opens a shift; the shift closes when the app exits.
+    int shiftId = _repository->OpenShift(employee.id, QDateTime::currentDateTime());
+
+    _bartender = new Bartender(_repository, _customerScanner, employee, shiftId);
     _editWindow = new EditWindow(_bartender);
     this->setCentralWidget(_editWindow);
 }

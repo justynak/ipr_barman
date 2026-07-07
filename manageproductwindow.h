@@ -20,7 +20,6 @@ public:
 private:
     Ui::ManageProductWindow *ui;
     ProductManager* _productManager;
-    Product* productSelected;
 
 signals:
     void managerClosed();

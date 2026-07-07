@@ -1,164 +1,153 @@
 #include "ordermanager.h"
+#include "businessday.h"
 
 
-OrderManager::OrderManager(BarRepository* repository, CardScanner* customerScanner, QString bartenderNumber)
+OrderManager::OrderManager(BarRepository* repository, CardScanner* customerScanner)
 {
     db = repository;
     _customerScanner = customerScanner;
 
-    //initialize orderList
-    _orderList = new OrderList(db, bartenderNumber);
-
-    //no order selected until the user picks one (the list may be empty)
-    _selectedOrder = NULL;
-
-    _oDetails = new OrderDetails();
+    _selected = -1;
+    _nextDraftNumber = 1;
 
     _pManager = new ProductManager(db);
 }
 
 OrderManager::~OrderManager()
 {
-    if(_orderList != NULL) delete _orderList;
-    delete _oDetails;
     delete _pManager;
 }
 
-bool OrderManager::SetSelectedOrder(Order *o)
+DraftOrder* OrderManager::Selected()
 {
-    if(o == NULL) return false;
+    if(_selected < 0 || _selected >= _drafts.size())
+        return NULL;
+    return &_drafts[_selected];
+}
 
-    if(_oDetails != NULL) delete _oDetails;
-    _oDetails  = new OrderDetails(o);
+QList<QString> OrderManager::GetOrders()
+{
+    QList<QString> labels;
+    foreach(const DraftOrder& d, _drafts)
+        labels.append(d.GetLabel());
+    return labels;
+}
 
-    _selectedOrder = o;
+bool OrderManager::CreateOrder()
+{
+    _drafts.append(DraftOrder(QString::number(_nextDraftNumber++)));
+    _selected = _drafts.size() - 1;
     return true;
 }
 
-bool OrderManager::SetSelectedOrder(QString name)
+bool OrderManager::SetSelectedOrder(QString label)
 {
-    Order* o = _orderList->GetOrderByName(name);
-    if(o == NULL) return false;
-
-    o->SetProductList(db->GetProductsFromBill(name));
-
-    if(_oDetails != NULL) delete _oDetails;
-    _oDetails  = new OrderDetails(o);
-
-    _selectedOrder = o;
-
-    return true;
-}
-
-bool OrderManager::CreateOrder(QString bartenderNumber)
-{
-    _orderList->AddOrder(bartenderNumber);
-    return SetSelectedOrder(_orderList->GetLast());
+    for(int i = 0; i < _drafts.size(); ++i)
+    {
+        if(_drafts[i].GetLabel() == label)
+        {
+            _selected = i;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool OrderManager::DeleteOrder()
 {
-    if(_selectedOrder == NULL) return false;
+    if(Selected() == NULL) return false;
 
-    QString billNumber = _selectedOrder->GetOrderNumber();
-
-    foreach(Product p, _selectedOrder->GetProductList())
-    {
-        db->RemoveProductFromOrder(billNumber, p);
-        _selectedOrder->RemoveProduct(p);
-    }
-
-    db->RemoveOrder(billNumber);
-
+    _drafts.removeAt(_selected);
+    _selected = -1;
     return true;
 }
 
 bool OrderManager::AddProduct()
 {
-    if(_selectedOrder == NULL) return false;
+    DraftOrder* d = Selected();
+    if(d == NULL) return false;
 
-    Product* p = _pManager->GetSelectedProduct();
-    QString name = _selectedOrder->GetOrderNumber();
+    Product p = _pManager->GetSelectedProduct();
+    int quantity = _pManager->GetSelectedQuantity();
 
-    if(name != "")
-    {
-        db->AddProductToOrder(name ,*p);
-        _selectedOrder->AddProduct(*p);
-    }
+    if(!p.IsValid() || quantity <= 0)
+        return false;
 
-    //add to list
-    _oDetails->RecalculateCost();
+    d->AddProduct(p, quantity);
     return true;
 }
 
-bool OrderManager::ChangeProductNumber(Product *p, int newNumber)
+bool OrderManager::ChangeProductQuantity(int productId, int quantity)
 {
-    if(_selectedOrder == NULL) return false;
+    DraftOrder* d = Selected();
+    if(d == NULL) return false;
 
-    _selectedOrder->ChangeProductNumber(*p, newNumber);
-    p->SetNumber(newNumber);
-    QString billNumber = _selectedOrder->GetOrderNumber();
-    db->ChangeProductNumber(billNumber, *p);
-    _oDetails->RecalculateCost();
-
-    return true;
+    return d->ChangeQuantity(productId, quantity);
 }
 
-bool OrderManager::DeleteProduct(Product *p)
+bool OrderManager::DeleteProduct(int productId)
 {
-    if(_selectedOrder == NULL) return false;
+    DraftOrder* d = Selected();
+    if(d == NULL) return false;
 
-    QString billNumber = _selectedOrder->GetOrderNumber();
-    db->RemoveProductFromOrder(billNumber, *p);
-
-    _selectedOrder->RemoveProduct(*p);
-    _oDetails->RecalculateCost();
-
-    return true;
+    return d->RemoveProduct(productId);
 }
 
 bool OrderManager::ScanCustomer()
 {
-    if(_selectedOrder == NULL) return false;
+    DraftOrder* d = Selected();
+    if(d == NULL) return false;
 
-    QString customerNumber = _customerScanner->ScanCard();
-
-    // The discount is only for cards of known loyal customers.
-    if(customerNumber == "" || !db->CustomerExists(customerNumber))
+    QString cardNumber = _customerScanner->ScanCard();
+    if(cardNumber == "")
         return false;
 
-    _oDetails->SetDiscount(LOYAL_CUSTOMER_DISCOUNT);
+    // The discount rate is copied onto the draft only for a validated card.
+    Customer customer = db->FindCustomerByCard(cardNumber);
+    if(!customer.IsValid())
+        return false;
 
-    _selectedOrder->SetCustomerID(customerNumber);
-    db->SetCustomerIDinOrder(customerNumber, _selectedOrder->GetOrderNumber());
-
+    d->SetCustomer(customer.id, cardNumber, LOYAL_CUSTOMER_DISCOUNT);
     return true;
 }
 
-bool OrderManager::CloseOrder()
+bool OrderManager::FinalizeOrder(int shiftId)
 {
-    if(_selectedOrder == NULL) return false;
+    DraftOrder* d = Selected();
+    if(d == NULL || d->IsEmpty()) return false;
 
-    QString orderNumber = _selectedOrder->GetOrderNumber();
-    db->CloseOrder(orderNumber);
+    QDateTime now = QDateTime::currentDateTime();
+
+    if(!db->FinalizeOrder(*d, shiftId, businessDay(now), now))
+        return false;
+
+    _drafts.removeAt(_selected);
+    _selected = -1;
     return true;
 }
 
-QList<QString> OrderManager::GetOrders()
+DraftOrder OrderManager::GetSelectedOrder()
 {
-    QList<Order> list =  _orderList->GetOrderList();
-
-    QList<QString> nameList;
-
-    foreach(Order o, list)
-        nameList.append(o.GetOrderNumber());
-
-    return nameList;
+    DraftOrder* d = Selected();
+    if(d == NULL)
+        return DraftOrder();
+    return *d;
 }
 
-QList<Product> OrderManager::GetProducts()
+QString OrderManager::GetSelectedOrderNumber()
 {
-    if(_selectedOrder == NULL)
-        return QList<Product>();
-    return _selectedOrder->GetProductList();
+    DraftOrder* d = Selected();
+    return d != NULL ? d->GetLabel() : QString("");
+}
+
+QString OrderManager::GetCustomerID()
+{
+    DraftOrder* d = Selected();
+    return d != NULL ? d->GetCustomerCard() : QString("");
+}
+
+Money OrderManager::GetCost()
+{
+    DraftOrder* d = Selected();
+    return d != NULL ? d->Subtotal() : 0;
 }

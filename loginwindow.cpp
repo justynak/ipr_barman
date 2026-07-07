@@ -19,6 +19,6 @@ void LoginWindow::on_buttonLogin_clicked()
 {
     QString cardNumber = _loginScanner->ScanCard();
 
-    if(cardNumber != "" && _repository->BartenderExists(cardNumber))
+    if(cardNumber != "" && _repository->FindEmployeeByCard(cardNumber).IsValid())
         emit logged(cardNumber);
 }

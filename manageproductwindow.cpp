@@ -3,12 +3,11 @@
 
 ManageProductWindow::ManageProductWindow(ProductManager *manager, QWidget *parent) :
     QDialog(parent), _productManager(manager),
-    //    QDialog(parent),
-    //ui(new Ui::Dialog)
-    //
     ui(new Ui::ManageProductWindow)
 {
     ui->setupUi(this);
+
+    _productManager->ClearSelection();
 
     //fill the box with categories
     QList<QString> categories = _productManager->GetCategoryList();
@@ -44,58 +43,41 @@ void ManageProductWindow::on_box_products_activated(const QString &arg1)
     Product* pr =  _productManager->GetProductByName(arg1);
     if(pr == NULL) return;
 
-    Product* p = _productManager->GetSelectedProduct();
-    p->SetName(arg1);
+    _productManager->SetSelectedProduct(*pr);
 
-    int maxnumber = pr->GetNumber();
-    p->SetNumber(0);
-
-    _productManager->SetSelectedProduct(p);
-    ui->label_available->setText(tr("%1").arg(maxnumber));
-    ui->label_number->setText(tr("%1").arg(p->GetNumber()));
+    ui->label_available->setText(tr("%1").arg(pr->GetAvailable()));
+    ui->label_number->setText(tr("%1").arg(_productManager->GetSelectedQuantity()));
 }
 
 void ManageProductWindow::on_button_add_clicked()
 {
-    Product* p = _productManager->GetSelectedProduct();
-    int number = p->GetNumber();
-    number += 1;
+    int number = _productManager->GetSelectedQuantity() + 1;
 
-    int max = ui->label_available->text().toInt();
+    int max = _productManager->GetSelectedProduct().GetAvailable();
     if (number > max) number = max;
 
-    p->SetNumber(number);
-    ui->label_number->setText(tr("%1").arg(number));
+    _productManager->SetSelectedQuantity(number);
+    ui->label_number->setText(tr("%1").arg(_productManager->GetSelectedQuantity()));
 }
 
 void ManageProductWindow::on_button_remove_clicked()
 {
-    Product* p = _productManager->GetSelectedProduct();
-    int number = p->GetNumber();
-    number -= 1;
-    if(number <0) number = 0;
-    p->SetNumber(number);
+    int number = _productManager->GetSelectedQuantity() - 1;
+    if(number < 0) number = 0;
+
+    _productManager->SetSelectedQuantity(number);
     ui->label_number->setText(tr("%1").arg(number));
 }
 
 void ManageProductWindow::on_button_approve_clicked()
 {
-    Product* p = _productManager->GetSelectedProduct();
-    QString name = p->GetName();
-    Product* pr =  _productManager->GetProductByName(name);
-
-    if(pr != NULL)
-        pr->SetNumber(pr->GetNumber() - p->GetNumber());
-
     //close window
     this->done(0);
 }
 
 void ManageProductWindow::on_button_discard_clicked()
 {
-    //close window
-    Product* p = _productManager->GetSelectedProduct();
-    p->SetName("");
-    p->SetNumber(0);
+    // nothing selected = nothing gets added to the bill
+    _productManager->ClearSelection();
     this->done(0);
 }

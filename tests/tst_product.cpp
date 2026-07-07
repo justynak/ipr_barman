@@ -8,39 +8,26 @@ class TestProduct : public QObject
 
 private slots:
     void constructorStoresValues();
-    void settersOverwriteValues();
-    void equalityComparesNameAndNumber();
+    void defaultConstructedProductIsInvalid();
 };
 
 void TestProduct::constructorStoresValues()
 {
-    Product p("Mojito", 2, 15.5);
+    Product p(3, "Mojito", 2200, "Cocktails", 12);
+    QCOMPARE(p.GetId(), 3);
     QCOMPARE(p.GetName(), QString("Mojito"));
-    QCOMPARE(p.GetNumber(), 2u);
-    QCOMPARE(p.GetPrice(), 15.5);
+    QCOMPARE(p.GetPrice(), Money(2200));
+    QCOMPARE(p.GetCategory(), QString("Cocktails"));
+    QCOMPARE(p.GetAvailable(), 12);
+    QVERIFY(p.IsValid());
 }
 
-void TestProduct::settersOverwriteValues()
+void TestProduct::defaultConstructedProductIsInvalid()
 {
-    Product p("Mojito", 2, 15.5);
-    QVERIFY(p.SetName("Cuba Libre"));
-    QVERIFY(p.SetNumber(3));
-    QVERIFY(p.SetPrice(18.0));
-    QCOMPARE(p.GetName(), QString("Cuba Libre"));
-    QCOMPARE(p.GetNumber(), 3u);
-    QCOMPARE(p.GetPrice(), 18.0);
-}
-
-void TestProduct::equalityComparesNameAndNumber()
-{
-    Product a("Mojito", 2, 15.5);
-    Product samePriceIgnored("Mojito", 2, 99.0);
-    Product otherName("Cuba Libre", 2, 15.5);
-    Product otherNumber("Mojito", 3, 15.5);
-
-    QVERIFY(a == samePriceIgnored);
-    QVERIFY(!(a == otherName));
-    QVERIFY(!(a == otherNumber));
+    Product p;
+    QVERIFY(!p.IsValid());
+    QCOMPARE(p.GetPrice(), Money(0));
+    QCOMPARE(p.GetAvailable(), 0);
 }
 
 QTEST_APPLESS_MAIN(TestProduct)

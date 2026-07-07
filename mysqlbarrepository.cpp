@@ -1,5 +1,4 @@
 #include "mysqlbarrepository.h"
-#include <QDate>
 
 
 MySqlBarRepository::MySqlBarRepository(const BarDatabaseConfig& config)
@@ -22,45 +21,78 @@ bool MySqlBarRepository::Open()
     return db.open();
 }
 
-
-QList<Product> MySqlBarRepository::GetProductsFromCategory(QString category)
+QString MySqlBarRepository::BarCurrency()
 {
-    QList<Product> list;
     QSqlQuery q(db);
-
-    q.prepare("select p.name, current_price, min(i.quantity) from bar_product "
-              "join product as p on p.name = bar_product.product_name "
-              "join product_ingredient as p_i on p.name = p_i.product_name "
-              "join ingredient as i on p_i.ingredient_name = i.name  "
-              "where category = :category and bar_id = :bar "
-              "group by p.name ");
-    q.bindValue(":category", category);
+    q.prepare("SELECT currency FROM bar WHERE name = :bar");
     q.bindValue(":bar", _config.barName);
     q.exec();
 
-    while(q.next())
-    {
-        Product p;
-        QString name = q.value(0).toString();
-        double price = q.value(1).toDouble();
-        int count = q.value(2).toInt();
-        p.SetName(name);
-        p.SetNumber(count);
-        p.SetPrice(price);
-        list.append(p);
-    }
-    return list;
+    if(!q.first())
+        return QString("");
+    return q.value(0).toString();
+}
 
+Employee MySqlBarRepository::FindEmployeeByCard(QString cardNumber)
+{
+    QSqlQuery q(db);
+    q.prepare("SELECT id, role, first_name, last_name FROM employee "
+              "WHERE card_number = :card");
+    q.bindValue(":card", cardNumber);
+    q.exec();
+
+    Employee e;
+    if(!q.first())
+        return e;
+
+    e.id = q.value(0).toInt();
+    e.role = q.value(1).toString();
+    e.cardNumber = cardNumber;
+    e.firstName = q.value(2).toString();
+    e.lastName = q.value(3).toString();
+    return e;
+}
+
+QList<QString> MySqlBarRepository::GetEmployeeCardNumbers()
+{
+    QSqlQuery q(db);
+    q.exec("SELECT card_number FROM employee");
+
+    QList<QString> list;
+    while(q.next())
+        list.append(q.value(0).toString());
+    return list;
+}
+
+int MySqlBarRepository::OpenShift(int employeeId, QDateTime openedAt)
+{
+    QSqlQuery q(db);
+    q.prepare("INSERT INTO shift(employee_id, opened_at) VALUES(:employee, :opened)");
+    q.bindValue(":employee", employeeId);
+    q.bindValue(":opened", openedAt);
+
+    if(!q.exec())
+        return 0;
+    return q.lastInsertId().toInt();
+}
+
+bool MySqlBarRepository::CloseShift(int shiftId, QDateTime closedAt)
+{
+    QSqlQuery q(db);
+    q.prepare("UPDATE shift SET closed_at = :closed WHERE id = :id");
+    q.bindValue(":closed", closedAt);
+    q.bindValue(":id", shiftId);
+    return q.exec();
 }
 
 QList<QString> MySqlBarRepository::GetCategories()
 {
     QList<QString> list;
     QSqlQuery q(db);
-    q.prepare("SELECT DISTINCT category FROM "
-              "bar_product as b join product as p "
-              "on b.product_name = p.name "
-              "WHERE b.bar_id = :bar order by category");
+    q.prepare("SELECT DISTINCT p.category FROM bar_product bp "
+              "JOIN bar b ON b.id = bp.bar_id "
+              "JOIN product p ON p.id = bp.product_id "
+              "WHERE b.name = :bar ORDER BY p.category");
     q.bindValue(":bar", _config.barName);
     q.exec();
 
@@ -69,101 +101,55 @@ QList<QString> MySqlBarRepository::GetCategories()
     return list;
 }
 
-bool MySqlBarRepository::BartenderExists(QString cardNumber)
+QList<Product> MySqlBarRepository::GetProductsFromCategory(QString category)
 {
-    QSqlQuery q(db);
-    q.prepare("SELECT card_number FROM bartender WHERE card_number = :card");
-    q.bindValue(":card", cardNumber);
-    q.exec();
-
-    return q.first();
-}
-
-QList<QString> MySqlBarRepository::GetBartenderCardNumbers()
-{
-    QSqlQuery q(db);
-    q.exec("SELECT card_number FROM bartender");
-
-    QList<QString> list;
-
-    while(q.next())
-        list.append(q.value(0).toString());
-
-    return list;
-}
-
-QString MySqlBarRepository::GetBartenderName(QString cardNumber)
-{
-    QSqlQuery q(db);
-    q.prepare("SELECT first_name FROM bartender WHERE card_number = :card");
-    q.bindValue(":card", cardNumber);
-    q.exec();
-
-    if(!q.first())
-        return QString("");
-
-    return q.value(0).toString();
-}
-
-QString MySqlBarRepository::GetBartenderSurname(QString cardNumber)
-{
-    QSqlQuery q(db);
-    q.prepare("SELECT last_name FROM bartender WHERE card_number = :card");
-    q.bindValue(":card", cardNumber);
-    q.exec();
-
-    if(!q.first())
-        return QString("");
-
-    return q.value(0).toString();
-}
-
-QList<Product> MySqlBarRepository::GetProductsFromBill(QString billNumber)
-{
-    QSqlQuery q(db);
-    q.prepare("select o.product_name, o.quantity, p.current_price "
-              "from order_item as o "
-              "join product as p on p.name = o.product_name "
-              "where o.order_number = :order");
-    q.bindValue(":order", billNumber);
-    q.exec();
-
     QList<Product> list;
+    QSqlQuery q(db);
+
+    // Availability = floor(min(stock / recipe amount)) over the product's
+    // ingredients; stock comes from the ledger view, never from a counter.
+    q.prepare("SELECT p.id, p.name, p.current_price, "
+              "       FLOOR(MIN(s.stock / pi.amount)) "
+              "FROM bar_product bp "
+              "JOIN bar b ON b.id = bp.bar_id "
+              "JOIN product p ON p.id = bp.product_id "
+              "JOIN product_ingredient pi ON pi.product_id = p.id "
+              "JOIN ingredient_stock s ON s.id = pi.ingredient_id "
+              "WHERE p.category = :category AND b.name = :bar "
+              "GROUP BY p.id, p.name, p.current_price");
+    q.bindValue(":category", category);
+    q.bindValue(":bar", _config.barName);
+    q.exec();
 
     while(q.next())
     {
-        Product p;
-        p.SetName(q.value(0).toString());
-        p.SetNumber(q.value(1).toInt());
-        p.SetPrice(q.value(2).toDouble());
+        int available = q.value(3).toInt();
+        if(available < 0)
+            available = 0;
 
-        list.append(p);
+        list.append(Product(q.value(0).toInt(),
+                            q.value(1).toString(),
+                            moneyFromDecimalString(q.value(2).toString()),
+                            category,
+                            available));
     }
-
     return list;
 }
 
-QList<Order> MySqlBarRepository::GetOrders(QString bartenderNumber)
+Customer MySqlBarRepository::FindCustomerByCard(QString cardNumber)
 {
     QSqlQuery q(db);
-    q.prepare("SELECT order_number, customer_card_number FROM customer_order "
-              "WHERE bartender_card_number = :bartender");
-    q.bindValue(":bartender", bartenderNumber);
+    q.prepare("SELECT id FROM customer WHERE card_number = :card");
+    q.bindValue(":card", cardNumber);
     q.exec();
 
-    QList<Order> list;
+    Customer c;
+    if(!q.first())
+        return c;
 
-    while(q.next())
-    {
-        QString orderNumber = q.value(0).toString();
-        QString customerID = q.value(1).toString();
-        Order o(orderNumber);
-        o.SetCustomerID(customerID);
-        o.SetProductList(GetProductsFromBill(orderNumber));
-        list.append(o);
-    }
-
-    return list;
+    c.id = q.value(0).toInt();
+    c.cardNumber = cardNumber;
+    return c;
 }
 
 QList<QString> MySqlBarRepository::GetCustomerCardNumbers()
@@ -171,7 +157,7 @@ QList<QString> MySqlBarRepository::GetCustomerCardNumbers()
     QList<QString> list;
     QSqlQuery q(db);
 
-    q.exec("SELECT card_number FROM loyal_customer");
+    q.exec("SELECT card_number FROM customer");
 
     while(q.next())
         list.append(q.value(0).toString());
@@ -179,87 +165,28 @@ QList<QString> MySqlBarRepository::GetCustomerCardNumbers()
     return list;
 }
 
-bool MySqlBarRepository::CustomerExists(QString cardNumber)
+bool MySqlBarRepository::FinalizeOrder(const DraftOrder& draft, int shiftId,
+                                       QDate businessDay, QDateTime createdAt)
 {
-    QSqlQuery q(db);
-    q.prepare("SELECT card_number FROM loyal_customer WHERE card_number = :card");
-    q.bindValue(":card", cardNumber);
-    q.exec();
-
-    return q.first();
-}
-
-bool MySqlBarRepository::SetCustomerIDinOrder(QString cardNumber, QString orderNumber)
-{
-    QSqlQuery q(db);
-    q.prepare("UPDATE customer_order SET customer_card_number = :card "
-              "WHERE order_number = :order");
-    q.bindValue(":card", cardNumber);
-    q.bindValue(":order", orderNumber);
-    return q.exec();
-}
-
-
-
-bool MySqlBarRepository::RemoveProductFromOrder(QString billNumber, Product p)
-{
-    if(!db.transaction())
+    if(draft.IsEmpty())
         return false;
 
-    // Read the stored quantity: stock has to be restored by what the DB
-    // actually holds, not by the (possibly stale) UI value.
-    QSqlQuery q(db);
-    q.prepare("select quantity from order_item "
-              "where order_number = :order and product_name = :product");
-    q.bindValue(":order", billNumber);
-    q.bindValue(":product", p.GetName());
+    QString currency = BarCurrency();
 
-    if(!q.exec() || !q.first())
-    {
-        db.rollback();
-        return false;
-    }
-
-    int storedQuantity = q.value(0).toInt();
-
-    q.prepare("delete from order_item "
-              "where order_number = :order and product_name = :product");
-    q.bindValue(":order", billNumber);
-    q.bindValue(":product", p.GetName());
-
-    if(!q.exec())
-    {
-        db.rollback();
-        return false;
-    }
-
-    q.prepare("update ingredient set quantity = quantity + :amount "
-              "where name in "
-              "(select ingredient_name from product_ingredient "
-              "where product_name = :product)");
-    q.bindValue(":amount", storedQuantity);
-    q.bindValue(":product", p.GetName());
-
-    if(!q.exec())
-    {
-        db.rollback();
-        return false;
-    }
-
-    return db.commit();
-}
-
-bool MySqlBarRepository::AddProductToOrder(QString billNumber, Product p)
-{
     if(!db.transaction())
         return false;
 
     QSqlQuery q(db);
-    q.prepare("insert into order_item (order_number, product_name, quantity) "
-              "values (:order, :product, :quantity)");
-    q.bindValue(":order", billNumber);
-    q.bindValue(":product", p.GetName());
-    q.bindValue(":quantity", p.GetNumber());
+    q.prepare("INSERT INTO customer_order"
+              "(shift_id, business_day, customer_id, discount_rate, currency, created_at) "
+              "VALUES(:shift, :day, :customer, :rate, :currency, :created)");
+    q.bindValue(":shift", shiftId);
+    q.bindValue(":day", businessDay);
+    q.bindValue(":customer", draft.HasCustomer() ? QVariant(draft.GetCustomerId())
+                                                 : QVariant(QVariant::Int));
+    q.bindValue(":rate", draft.GetDiscountRate());
+    q.bindValue(":currency", currency);
+    q.bindValue(":created", createdAt);
 
     if(!q.exec())
     {
@@ -267,124 +194,44 @@ bool MySqlBarRepository::AddProductToOrder(QString billNumber, Product p)
         return false;
     }
 
-    // v1 has no recipe amounts, so stock is decremented by the order quantity
-    // for every ingredient of the product; schema v2 fixes the model.
-    q.prepare("update ingredient set quantity = quantity - :amount "
-              "where name in "
-              "(select ingredient_name from product_ingredient "
-              "where product_name = :product)");
-    q.bindValue(":amount", p.GetNumber());
-    q.bindValue(":product", p.GetName());
+    int orderId = q.lastInsertId().toInt();
 
-    if(!q.exec())
+    foreach(const OrderLine& line, draft.GetLines())
     {
-        db.rollback();
-        return false;
-    }
+        q.prepare("INSERT INTO order_item"
+                  "(order_id, product_id, product_name, unit_price, quantity) "
+                  "VALUES(:order, :product, :name, :price, :quantity)");
+        q.bindValue(":order", orderId);
+        q.bindValue(":product", line.productId);
+        q.bindValue(":name", line.productName);
+        q.bindValue(":price", moneyToDecimalString(line.unitPrice));
+        q.bindValue(":quantity", line.quantity);
 
-    return db.commit();
-}
+        if(!q.exec())
+        {
+            db.rollback();
+            return false;
+        }
 
+        int orderItemId = q.lastInsertId().toInt();
 
-bool MySqlBarRepository::ChangeProductNumber(QString billNumber, Product p)
-{
-    if(!db.transaction())
-        return false;
+        // One negative ledger movement per line-ingredient:
+        // -(recipe amount × quantity), reason 'order'.
+        q.prepare("INSERT INTO ingredient_movement"
+                  "(ingredient_id, amount, reason, order_item_id, occurred_at) "
+                  "SELECT pi.ingredient_id, -(pi.amount * :quantity), 'order', :item, :occurred "
+                  "FROM product_ingredient pi WHERE pi.product_id = :product");
+        q.bindValue(":quantity", line.quantity);
+        q.bindValue(":item", orderItemId);
+        q.bindValue(":occurred", createdAt);
+        q.bindValue(":product", line.productId);
 
-    QSqlQuery q(db);
-    q.prepare("select quantity from order_item "
-              "where order_number = :order and product_name = :product");
-    q.bindValue(":order", billNumber);
-    q.bindValue(":product", p.GetName());
-
-    if(!q.exec() || !q.first())
-    {
-        db.rollback();
-        return false;
-    }
-
-    int oldQuantity = q.value(0).toInt();
-    int newQuantity = p.GetNumber();
-
-    q.prepare("update order_item set quantity = :quantity "
-              "where order_number = :order and product_name = :product");
-    q.bindValue(":quantity", newQuantity);
-    q.bindValue(":order", billNumber);
-    q.bindValue(":product", p.GetName());
-
-    if(!q.exec())
-    {
-        db.rollback();
-        return false;
-    }
-
-    // Adjust stock by the difference instead of overwriting it.
-    q.prepare("update ingredient set quantity = quantity + :amount "
-              "where name in "
-              "(select ingredient_name from product_ingredient "
-              "where product_name = :product)");
-    q.bindValue(":amount", oldQuantity - newQuantity);
-    q.bindValue(":product", p.GetName());
-
-    if(!q.exec())
-    {
-        db.rollback();
-        return false;
+        if(!q.exec())
+        {
+            db.rollback();
+            return false;
+        }
     }
 
     return db.commit();
-}
-
-
-
-bool MySqlBarRepository::CloseOrder(QString billNumber)
-{
-    QSqlQuery q(db);
-    q.prepare("UPDATE customer_order SET closed = '1' WHERE order_number = :order");
-    q.bindValue(":order", billNumber);
-    return q.exec();
-}
-
-bool MySqlBarRepository::RemoveOrder(QString billNumber)
-{
-    if(!db.transaction())
-        return false;
-
-    QSqlQuery q(db);
-    q.prepare("delete from order_item where order_number = :order");
-    q.bindValue(":order", billNumber);
-
-    if(!q.exec())
-    {
-        db.rollback();
-        return false;
-    }
-
-    q.prepare("delete from customer_order where order_number = :order");
-    q.bindValue(":order", billNumber);
-
-    if(!q.exec())
-    {
-        db.rollback();
-        return false;
-    }
-
-    return db.commit();
-}
-
-bool MySqlBarRepository::CreateOrder(QString bartenderNumber, Order* newOrder)
-{
-    QString date = QDate::currentDate().toString(Qt::ISODate);
-
-    QSqlQuery q(db);
-    q.prepare("INSERT INTO customer_order(bartender_card_number, order_date) "
-              "VALUES(:bartender, :date)");
-    q.bindValue(":bartender", bartenderNumber);
-    q.bindValue(":date", date);
-
-    if(!q.exec())
-        return false;
-
-    newOrder->SetOrderNumber(q.lastInsertId().toString());
-    return true;
 }

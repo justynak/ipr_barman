@@ -4,53 +4,49 @@
 #include "ordermanager.h"
 #include "barrepository.h"
 #include "cardscanner.h"
+#include "employee.h"
 
+// Facade over the managers for the logged-in employee's shift.
 class Bartender
 {
 
 private:
-    QString _pesel;
-    QString _name;
-    QString _surname;
+    Employee _employee;
+    int _shiftId;
 
     OrderManager* _oManager;
     BarRepository *db;
 
 public:
-    Bartender(BarRepository* repository, CardScanner* customerScanner, QString pesel);
+    Bartender(BarRepository* repository, CardScanner* customerScanner,
+              Employee employee, int shiftId);
     ~Bartender();
 
-    void SetName();
-    void SetSurname();
-    void SetPesel(QString pesel){ _pesel = pesel;}
+    QString GetName(){return _employee.firstName;}
+    QString GetSurname(){return _employee.lastName;}
+    QString GetRole(){return _employee.role;}
+    int GetShiftId(){return _shiftId;}
 
-    QString GetName(){return _name;}
-    QString GetPesel(){return _pesel;}
-    QString GetSurname(){return _surname;}
+    bool AddProduct(){return _oManager->AddProduct();}
+    bool ChangeProductQuantity(int productId, int quantity){return _oManager->ChangeProductQuantity(productId, quantity);}
+    bool RemoveProduct(int productId){return _oManager->DeleteProduct(productId);}
 
-    bool AddProduct();
-    bool RemoveProduct(Product p);
-    bool ChangeProductNumber(Product p, int newNumber);
+    bool AddOrder(){return _oManager->CreateOrder();}
+    bool RemoveOrder(){return _oManager->DeleteOrder();}
+    bool FinalizeOrder(){return _oManager->FinalizeOrder(_shiftId);}
 
-    bool RemoveOrder();
-    bool AddOrder();
-    bool CloseOrder();
+    bool ScanCustomer(){return _oManager->ScanCustomer();}
 
-    bool ScanCustomer();
-
-    bool SetSelectedProduct(Product* p) {_oManager->SetSelectedProduct(p); return true;}
-
-    bool SetOrder(QString billNumber);
-    QList<QString> GetOrders();
-    QList<Product> GetProductsFromOrder();
+    bool SetOrder(QString label){return _oManager->SetSelectedOrder(label);}
+    QList<QString> GetOrders(){return _oManager->GetOrders();}
+    QList<OrderLine> GetOrderLines(){return _oManager->GetSelectedOrder().GetLines();}
+    DraftOrder GetSelectedDraft(){return _oManager->GetSelectedOrder();}
 
     QString GetSelectedOrderNumber(){return _oManager->GetSelectedOrderNumber();}
-    Order* GetSelectedOrder(){return _oManager->GetSelectedOrder();}
     ProductManager* GetProductManager(){return _oManager->GetProductManager();}
 
-    OrderDetails* GetOrderDetails(){return _oManager->GetOrderDetails();}
     QString GetSelectedOrderCustomerID(){return _oManager->GetCustomerID();}
-    double GetSelectedOrderCost(){return _oManager->GetCost();}
+    Money GetSelectedOrderCost(){return _oManager->GetCost();}
 
 };
 

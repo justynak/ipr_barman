@@ -5,7 +5,7 @@
 #include "barrepository.h"
 
 
-// Simulator: "scans" the card of a random known bartender.
+// Simulator: "scans" the card of a random known employee.
 class LoginScanner : public CardScanner
 {
 private:

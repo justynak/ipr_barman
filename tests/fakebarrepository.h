@@ -6,174 +6,247 @@
 
 #include "barrepository.h"
 
-// In-memory BarRepository for unit tests. Mirrors the v1 model: orders hold
-// item lines; ingredient stock is not modelled (v2 replaces it with a ledger),
-// so stock-affecting calls only record the item changes.
+// In-memory BarRepository mirroring schema v2: employees/shifts, customers,
+// a product catalog with recipes, and an append-only movement ledger from
+// which stock (and product availability) is derived — same arithmetic as the
+// ingredient_stock view.
 class FakeBarRepository : public BarRepository
 {
 public:
-    struct FakeOrder
+    struct RecipeLine
     {
-        QString bartender;
-        QString customerID;
-        bool closed;
-        QList<Product> items;
+        int ingredientId;
+        double amount;
 
-        FakeOrder() : closed(false) {}
+        RecipeLine() : ingredientId(0), amount(0) {}
+        RecipeLine(int id, double a) : ingredientId(id), amount(a) {}
     };
 
-    QMap<QString, QString> bartenderNames;      // card -> first name
-    QMap<QString, QString> bartenderSurnames;   // card -> last name
-    QMap<QString, QList<Product> > productsByCategory;
-    QStringList customerCards;
-    QMap<QString, FakeOrder> orders;            // order number -> order
-
-    FakeBarRepository() : _nextOrderNumber(1) {}
-
-    void AddBartender(QString card, QString name, QString surname)
+    struct Movement
     {
-        bartenderNames[card] = name;
-        bartenderSurnames[card] = surname;
+        int ingredientId;
+        double amount;          // negative = consumed
+        QString reason;
+        int orderItemId;        // 0 = none
+        QDateTime occurredAt;
+    };
+
+    struct FinalizedItem
+    {
+        int id;
+        int productId;
+        QString productName;    // copy at sale time
+        Money unitPrice;        // copy at sale time
+        int quantity;
+    };
+
+    struct FinalizedOrder
+    {
+        int shiftId;
+        QDate businessDay;
+        int customerId;         // 0 = none
+        double discountRate;
+        QString currency;       // copy at sale time
+        QDateTime createdAt;
+        QList<FinalizedItem> items;
+    };
+
+    struct Shift
+    {
+        int id;
+        int employeeId;
+        QDateTime openedAt;
+        QDateTime closedAt;
+        bool closed;
+    };
+
+    QMap<QString, Employee> employees;          // card -> employee
+    QMap<QString, int> customers;               // card -> id
+    QString currency;
+
+    QList<Product> catalog;                     // availability field ignored; derived
+    QMap<int, QList<RecipeLine> > recipes;      // product id -> recipe
+    QMap<int, double> openingStock;             // ingredient id -> delivered amount
+    QList<Movement> movements;                  // the ledger
+
+    QList<Shift> shifts;
+    QList<FinalizedOrder> finalizedOrders;
+
+    FakeBarRepository() : currency("PLN"), _nextOrderItemId(1) {}
+
+    // -- test setup helpers --------------------------------------------------
+
+    void AddEmployee(int id, QString role, QString card, QString name, QString surname)
+    {
+        Employee e;
+        e.id = id;
+        e.role = role;
+        e.cardNumber = card;
+        e.firstName = name;
+        e.lastName = surname;
+        employees[card] = e;
     }
 
-    bool BartenderExists(QString cardNumber)
+    void AddCustomer(int id, QString card)
     {
-        return bartenderNames.contains(cardNumber);
+        customers[card] = id;
     }
 
-    QString GetBartenderName(QString cardNumber)
+    void AddIngredient(int id, double delivered)
     {
-        return bartenderNames.value(cardNumber, QString(""));
+        openingStock[id] = delivered;
     }
 
-    QString GetBartenderSurname(QString cardNumber)
+    void AddProduct(const Product& p, const QList<RecipeLine>& recipe)
     {
-        return bartenderSurnames.value(cardNumber, QString(""));
+        catalog.append(p);
+        recipes[p.GetId()] = recipe;
     }
 
-    QList<QString> GetBartenderCardNumbers()
+    double CurrentStock(int ingredientId) const
     {
-        return bartenderNames.keys();
+        double stock = openingStock.value(ingredientId, 0);
+        foreach(const Movement& m, movements)
+        {
+            if(m.ingredientId == ingredientId)
+                stock += m.amount;
+        }
+        return stock;
+    }
+
+    // -- BarRepository -------------------------------------------------------
+
+    Employee FindEmployeeByCard(QString cardNumber)
+    {
+        return employees.value(cardNumber, Employee());
+    }
+
+    QList<QString> GetEmployeeCardNumbers()
+    {
+        return employees.keys();
+    }
+
+    int OpenShift(int employeeId, QDateTime openedAt)
+    {
+        Shift s;
+        s.id = shifts.size() + 1;
+        s.employeeId = employeeId;
+        s.openedAt = openedAt;
+        s.closed = false;
+        shifts.append(s);
+        return s.id;
+    }
+
+    bool CloseShift(int shiftId, QDateTime closedAt)
+    {
+        for(int i = 0; i < shifts.size(); ++i)
+        {
+            if(shifts[i].id == shiftId)
+            {
+                shifts[i].closedAt = closedAt;
+                shifts[i].closed = true;
+                return true;
+            }
+        }
+        return false;
     }
 
     QList<QString> GetCategories()
     {
-        return productsByCategory.keys();
+        QList<QString> categories;
+        foreach(const Product& p, catalog)
+        {
+            if(!categories.contains(p.GetCategory()))
+                categories.append(p.GetCategory());
+        }
+        return categories;
     }
 
     QList<Product> GetProductsFromCategory(QString category)
     {
-        return productsByCategory.value(category);
-    }
-
-    bool CustomerExists(QString cardNumber)
-    {
-        return customerCards.contains(cardNumber);
-    }
-
-    QList<QString> GetCustomerCardNumbers()
-    {
-        return customerCards;
-    }
-
-    bool SetCustomerIDinOrder(QString cardNumber, QString orderNumber)
-    {
-        if(!orders.contains(orderNumber))
-            return false;
-        orders[orderNumber].customerID = cardNumber;
-        return true;
-    }
-
-    QList<Order> GetOrders(QString bartenderNumber)
-    {
-        QList<Order> list;
-        foreach(QString number, orders.keys())
+        QList<Product> list;
+        foreach(const Product& p, catalog)
         {
-            const FakeOrder& fake = orders[number];
-            if(fake.bartender != bartenderNumber)
+            if(p.GetCategory() != category)
                 continue;
-            Order o(number);
-            o.SetCustomerID(fake.customerID);
-            o.SetProductList(fake.items);
-            list.append(o);
+
+            // floor(min(stock / amount)) over the recipe — the same
+            // derivation the ingredient_stock view query performs.
+            int available = 0;
+            bool first = true;
+            foreach(const RecipeLine& line, recipes.value(p.GetId()))
+            {
+                int possible = (int)(CurrentStock(line.ingredientId) / line.amount);
+                if(possible < 0)
+                    possible = 0;
+                if(first || possible < available)
+                    available = possible;
+                first = false;
+            }
+
+            list.append(Product(p.GetId(), p.GetName(), p.GetPrice(),
+                                p.GetCategory(), first ? 0 : available));
         }
         return list;
     }
 
-    QList<Product> GetProductsFromBill(QString billNumber)
+    Customer FindCustomerByCard(QString cardNumber)
     {
-        if(!orders.contains(billNumber))
-            return QList<Product>();
-        return orders[billNumber].items;
+        Customer c;
+        if(!customers.contains(cardNumber))
+            return c;
+        c.id = customers[cardNumber];
+        c.cardNumber = cardNumber;
+        return c;
     }
 
-    bool CreateOrder(QString bartenderNumber, Order* newOrder)
+    QList<QString> GetCustomerCardNumbers()
     {
-        QString number = QString::number(_nextOrderNumber++);
-        FakeOrder fake;
-        fake.bartender = bartenderNumber;
-        orders[number] = fake;
-        newOrder->SetOrderNumber(number);
-        return true;
+        return customers.keys();
     }
 
-    bool RemoveOrder(QString billNumber)
+    bool FinalizeOrder(const DraftOrder& draft, int shiftId,
+                       QDate businessDay, QDateTime createdAt)
     {
-        return orders.remove(billNumber) > 0;
-    }
-
-    bool CloseOrder(QString billNumber)
-    {
-        if(!orders.contains(billNumber))
-            return false;
-        orders[billNumber].closed = true;
-        return true;
-    }
-
-    bool AddProductToOrder(QString billNumber, Product p)
-    {
-        if(!orders.contains(billNumber))
-            return false;
-        orders[billNumber].items.append(p);
-        return true;
-    }
-
-    bool RemoveProductFromOrder(QString billNumber, Product p)
-    {
-        if(!orders.contains(billNumber))
+        if(draft.IsEmpty())
             return false;
 
-        QList<Product>& items = orders[billNumber].items;
-        for(int i = 0; i < items.size(); ++i)
+        FinalizedOrder order;
+        order.shiftId = shiftId;
+        order.businessDay = businessDay;
+        order.customerId = draft.HasCustomer() ? draft.GetCustomerId() : 0;
+        order.discountRate = draft.GetDiscountRate();
+        order.currency = currency;
+        order.createdAt = createdAt;
+
+        foreach(const OrderLine& line, draft.GetLines())
         {
-            if(items[i].GetName() == p.GetName())
+            FinalizedItem item;
+            item.id = _nextOrderItemId++;
+            item.productId = line.productId;
+            item.productName = line.productName;
+            item.unitPrice = line.unitPrice;
+            item.quantity = line.quantity;
+            order.items.append(item);
+
+            foreach(const RecipeLine& recipeLine, recipes.value(line.productId))
             {
-                items.removeAt(i);
-                return true;
+                Movement m;
+                m.ingredientId = recipeLine.ingredientId;
+                m.amount = -(recipeLine.amount * line.quantity);
+                m.reason = "order";
+                m.orderItemId = item.id;
+                m.occurredAt = createdAt;
+                movements.append(m);
             }
         }
-        return false;
-    }
 
-    bool ChangeProductNumber(QString billNumber, Product p)
-    {
-        if(!orders.contains(billNumber))
-            return false;
-
-        QList<Product>& items = orders[billNumber].items;
-        for(int i = 0; i < items.size(); ++i)
-        {
-            if(items[i].GetName() == p.GetName())
-            {
-                items[i].SetNumber(p.GetNumber());
-                return true;
-            }
-        }
-        return false;
+        finalizedOrders.append(order);
+        return true;
     }
 
 private:
-    int _nextOrderNumber;
+    int _nextOrderItemId;
 };
 
 #endif // FAKEBARREPOSITORY_H

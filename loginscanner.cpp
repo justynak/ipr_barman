@@ -13,7 +13,7 @@ LoginScanner::~LoginScanner()
 
 QString LoginScanner::ScanCard()
 {
-   QList<QString> cards = db->GetBartenderCardNumbers();
+   QList<QString> cards = db->GetEmployeeCardNumbers();
 
    if(cards.isEmpty())
        return QString("");

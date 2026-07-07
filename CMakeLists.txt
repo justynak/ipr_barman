@@ -12,10 +12,8 @@ find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Sql Test)
 
 add_library(barman_core STATIC
     ordermanager.cpp
-    orderlist.cpp
-    order.cpp
-    orderdetails.cpp
-    product.cpp
+    draftorder.cpp
+    businessday.cpp
     productmanager.cpp
     categorylist.cpp
     customerscanner.cpp
@@ -26,9 +24,11 @@ add_library(barman_core STATIC
     barrepository.h
     cardscanner.h
     ordermanager.h
-    orderlist.h
-    order.h
-    orderdetails.h
+    draftorder.h
+    businessday.h
+    money.h
+    employee.h
+    customer.h
     product.h
     productmanager.h
     categorylist.h

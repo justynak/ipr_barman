@@ -9,28 +9,28 @@ class TestScanners : public QObject
     Q_OBJECT
 
 private slots:
-    void loginScannerPicksAKnownBartender();
-    void loginScannerReturnsEmptyWhenNoBartenders();
+    void loginScannerPicksAKnownEmployee();
+    void loginScannerReturnsEmptyWhenNoEmployees();
     void customerScannerPicksAKnownCustomer();
     void customerScannerReturnsEmptyWhenNoCustomers();
 };
 
-void TestScanners::loginScannerPicksAKnownBartender()
+void TestScanners::loginScannerPicksAKnownEmployee()
 {
     FakeBarRepository repo;
-    repo.AddBartender("B1", "Jan", "Kowalski");
-    repo.AddBartender("B2", "Anna", "Nowak");
+    repo.AddEmployee(1, "bartender", "card-1", "Jan", "Kowalski");
+    repo.AddEmployee(2, "manager", "card-2", "Anna", "Nowak");
 
     LoginScanner scanner(&repo);
 
     for(int i = 0; i < 20; ++i)
     {
         QString card = scanner.ScanCard();
-        QVERIFY(repo.BartenderExists(card));
+        QVERIFY(repo.FindEmployeeByCard(card).IsValid());
     }
 }
 
-void TestScanners::loginScannerReturnsEmptyWhenNoBartenders()
+void TestScanners::loginScannerReturnsEmptyWhenNoEmployees()
 {
     FakeBarRepository repo;
     LoginScanner scanner(&repo);
@@ -41,14 +41,15 @@ void TestScanners::loginScannerReturnsEmptyWhenNoBartenders()
 void TestScanners::customerScannerPicksAKnownCustomer()
 {
     FakeBarRepository repo;
-    repo.customerCards << "C1" << "C2";
+    repo.AddCustomer(1, "C1");
+    repo.AddCustomer(2, "C2");
 
     CustomerScanner scanner(&repo);
 
     for(int i = 0; i < 20; ++i)
     {
         QString card = scanner.ScanCard();
-        QVERIFY(repo.CustomerExists(card));
+        QVERIFY(repo.FindCustomerByCard(card).IsValid());
     }
 }
 
