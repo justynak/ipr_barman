@@ -8,15 +8,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Sql)
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Sql Test)
 
-add_executable(ipr_barman
-    main.cpp
-    mainwindow.cpp
-    editwindow.cpp
-    loginwindow.cpp
-    manageproductwindow.cpp
-    detailswindow.cpp
+add_library(barman_core STATIC
     ordermanager.cpp
     orderlist.cpp
     order.cpp
@@ -29,11 +23,6 @@ add_executable(ipr_barman
     databaseconnector.cpp
     loginscanner.cpp
 
-    mainwindow.h
-    editwindow.h
-    loginwindow.h
-    manageproductwindow.h
-    detailswindow.h
     ordermanager.h
     orderlist.h
     order.h
@@ -45,6 +34,29 @@ add_executable(ipr_barman
     bartender.h
     databaseconnector.h
     loginscanner.h
+)
+
+target_include_directories(barman_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+# Widgets is needed only for the QMessageBox inside DatabaseConnector::connect();
+# it moves out of the data layer in the repository refactor (phase 2).
+target_link_libraries(barman_core
+    PUBLIC Qt5::Core Qt5::Sql
+    PRIVATE Qt5::Widgets
+)
+
+add_executable(ipr_barman
+    main.cpp
+    mainwindow.cpp
+    editwindow.cpp
+    loginwindow.cpp
+    manageproductwindow.cpp
+    detailswindow.cpp
+
+    mainwindow.h
+    editwindow.h
+    loginwindow.h
+    manageproductwindow.h
+    detailswindow.h
 
     mainwindow.ui
     editwindow.ui
@@ -53,4 +65,7 @@ add_executable(ipr_barman
     manageproductwindow.ui
 )
 
-target_link_libraries(ipr_barman PRIVATE Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Sql)
+target_link_libraries(ipr_barman PRIVATE barman_core Qt5::Gui Qt5::Widgets)
+
+enable_testing()
+add_subdirectory(tests)

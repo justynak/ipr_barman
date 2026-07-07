@@ -23,4 +23,5 @@ jobs:
       - name: Build
         run: cmake --build build -j"$(nproc)"
 
-      # Next step: ctest once the QtTest harness lands.
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
