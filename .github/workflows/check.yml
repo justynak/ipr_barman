@@ -25,3 +25,48 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
+
+  # Runs tst_mysql_repository against a real server with schema_v2.sql
+  # loaded — covers the SQL, the driver and the finalize transaction, which
+  # the FakeBarRepository-backed unit tests cannot. mariadb:11 matches the
+  # local dev server and avoids MySQL 8.4's caching_sha2 friction with the
+  # libmariadb-based Qt driver.
+  mysql-integration:
+    name: mysql integration
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt5, MySQL driver and client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qtbase5-dev libqt5sql5-mysql mariadb-client
+
+      - name: Load schema and seed data
+        run: mysql -h127.0.0.1 -uroot -proot < schema_v2.sql
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build -j"$(nproc)"
+
+      - name: Integration test
+        env:
+          BARMAN_MYSQL_TEST: "1"
+          BARMAN_MYSQL_USER: root
+          BARMAN_MYSQL_PASSWORD: root
+        run: ctest --test-dir build -R tst_mysql_repository --output-on-failure

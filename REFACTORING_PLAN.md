@@ -33,8 +33,10 @@ implementing:
 - Phase 3: `DraftOrder::AddProduct` *merges* lines with the same product id
   (v1 appended duplicate rows); quantity ≤ 0 in `ChangeQuantity` removes the
   line. `Product` keeps a derived `available` field filled by the repository
-  query. The optional MySQL-service-container CI job was **not** added —
-  worth a follow-up PR if the SQL should be integration-tested.
+  query. The optional MySQL-service-container CI job was added later as
+  PR #8 (`test/mysql-integration-ci`): `tst_mysql_repository` runs against a
+  `mariadb:11` service with `schema_v2.sql` loaded, opt-in via
+  `BARMAN_MYSQL_TEST=1` so the unit-test job stays DB-free.
 - Phase 4 renamed all slots away from the `on_<object>_<signal>` pattern:
   the old code both auto-connected them (`connectSlotsByName`) *and*
   connected some explicitly, so several handlers fired twice per click.
