@@ -3,11 +3,16 @@
 #include "loginscanner.h"
 #include "customerscanner.h"
 #include <QApplication>
+#include <QFile>
 #include <QMessageBox>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    QFile theme(":/theme.qss");
+    if(theme.open(QIODevice::ReadOnly))
+        a.setStyleSheet(QString::fromUtf8(theme.readAll()));
 
     BarDatabaseConfig config;
     config.hostName = "localhost";
@@ -19,7 +24,7 @@ int main(int argc, char *argv[])
     MySqlBarRepository repository(config);
 
     if(!repository.Open())
-        QMessageBox::information(nullptr, QObject::tr("Błąd"), repository.LastError().text());
+        QMessageBox::information(nullptr, QObject::tr("Error"), repository.LastError().text());
 
     LoginScanner loginScanner(&repository);
     CustomerScanner customerScanner(&repository);

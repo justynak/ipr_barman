@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ManageProductWindow</class>
  <widget class="QDialog" name="ManageProductWindow">
@@ -6,38 +6,133 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1436</width>
-    <height>982</height>
+    <width>1140</width>
+    <height>680</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Add product</string>
   </property>
-  <widget class="QPushButton" name="button_add">
+  <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>580</x>
-     <y>350</y>
-     <width>61</width>
-     <height>51</height>
+     <x>0</x>
+     <y>25</y>
+     <width>1140</width>
+     <height>60</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>32</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>+</string>
+    <string>PRODUCTS</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLabel" name="label_number">
+  <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>650</x>
-     <y>360</y>
-     <width>131</width>
-     <height>20</height>
+     <x>80</x>
+     <y>130</y>
+     <width>300</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Category</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="box_categories">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>160</y>
+     <width>380</width>
+     <height>41</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>130</y>
+     <width>300</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Product</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="box_products">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>160</y>
+     <width>520</width>
+     <height>41</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_available">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>280</y>
+     <width>380</width>
+     <height>30</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <pointsize>16</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Available: –</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_remove">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>260</y>
+     <width>61</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>−</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_number">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>270</y>
+     <width>131</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>18</pointsize>
     </font>
    </property>
    <property name="text">
@@ -47,133 +142,43 @@
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="button_remove">
+  <widget class="QPushButton" name="button_add">
    <property name="geometry">
     <rect>
-     <x>790</x>
-     <y>350</y>
+     <x>770</x>
+     <y>260</y>
      <width>61</width>
      <height>51</height>
     </rect>
    </property>
    <property name="text">
-    <string>-</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="box_categories">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>170</y>
-     <width>311</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>Gotham Bold</family>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_available">
-   <property name="geometry">
-    <rect>
-     <x>630</x>
-     <y>290</y>
-     <width>181</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>Gotham Bold</family>
-     <pointsize>16</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Dostępna liczba: </string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>600</x>
-     <y>-10</y>
-     <width>281</width>
-     <height>81</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>Gotham Bold</family>
-     <pointsize>32</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>PRODUKTY</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_3">
-   <property name="geometry">
-    <rect>
-     <x>760</x>
-     <y>140</y>
-     <width>151</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Produkt</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="box_products">
-   <property name="geometry">
-    <rect>
-     <x>760</x>
-     <y>170</y>
-     <width>381</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>140</y>
-     <width>201</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Kategoria</string>
+    <string>+</string>
    </property>
   </widget>
   <widget class="QPushButton" name="button_approve">
    <property name="geometry">
     <rect>
-     <x>400</x>
-     <y>550</y>
-     <width>121</width>
-     <height>51</height>
+     <x>320</x>
+     <y>560</y>
+     <width>220</width>
+     <height>61</height>
     </rect>
    </property>
    <property name="text">
-    <string>Zatwierdź</string>
+    <string>Approve</string>
    </property>
   </widget>
   <widget class="QPushButton" name="button_discard">
    <property name="geometry">
     <rect>
-     <x>900</x>
+     <x>600</x>
      <y>560</y>
-     <width>111</width>
-     <height>51</height>
+     <width>220</width>
+     <height>61</height>
     </rect>
    </property>
    <property name="text">
-    <string>Anuluj</string>
+    <string>Cancel</string>
    </property>
   </widget>
  </widget>

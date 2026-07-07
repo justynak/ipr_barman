@@ -63,6 +63,8 @@ add_executable(ipr_barman
     loginwindow.ui
     detailswindow.ui
     manageproductwindow.ui
+
+    resources.qrc
 )
 
 target_link_libraries(ipr_barman PRIVATE barman_core Qt5::Gui Qt5::Widgets)

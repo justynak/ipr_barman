@@ -19,7 +19,7 @@ EditWindow::EditWindow(Bartender *bartender, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->label_logged_as->setText(tr("Zmiana #%1 — %2 %3 (%4)")
+    ui->label_logged_as->setText(tr("Shift #%1 — %2 %3 (%4)")
                                  .arg(_bartender->GetShiftId())
                                  .arg(_bartender->GetName())
                                  .arg(_bartender->GetSurname())
@@ -55,9 +55,11 @@ void EditWindow::setupProductTable()
     ui->product_list->setColumnWidth(COL_ADD_ONE, 50);
     ui->product_list->setColumnWidth(COL_REMOVE_ONE, 50);
     ui->product_list->setColumnWidth(COL_DELETE, 150);
+    ui->product_list->setAlternatingRowColors(true);
+    ui->product_list->verticalHeader()->setVisible(false);
 
     QStringList headers;
-    headers << tr("Produkt") << "" << tr("Ilość") << "" << tr("Cena") << tr("Usuń");
+    headers << tr("Product") << "" << tr("Qty") << "" << tr("Price") << tr("Remove");
     ui->product_list->setHorizontalHeaderLabels(headers);
 }
 
@@ -82,7 +84,7 @@ void EditWindow::refreshBill()
         item[COL_NUMBER]->setText(tr("%1").arg(lines[i].quantity));
         item[COL_REMOVE_ONE]->setText(tr("-"));
         item[COL_PRICE]->setText(moneyToDecimalString(lines[i].unitPrice));
-        item[COL_DELETE]->setText(tr("X"));
+        item[COL_DELETE]->setText(tr("✕"));
 
         for(int j = 0; j < 6; ++j)
             ui->product_list->setItem(i, j, item[j]);
@@ -94,7 +96,7 @@ void EditWindow::refreshBill()
 void EditWindow::refreshBillsCombo()
 {
     ui->box_bills->clear();
-    ui->box_bills->addItem(tr("Nowy rachunek"));
+    ui->box_bills->addItem(tr("New bill"));
     const QList<QString> labels = _bartender->GetOrders();
     for(const QString& label : labels)
         ui->box_bills->addItem(label);
@@ -102,14 +104,14 @@ void EditWindow::refreshBillsCombo()
 
 void EditWindow::updateSummaryLabels()
 {
-    ui->label_bill_number->setText(tr("Numer rachunku: %1").arg(_bartender->GetSelectedOrderNumber()));
-    ui->label_client_number->setText(tr("Numer klienta: %1").arg(_bartender->GetSelectedOrderCustomerID()));
+    ui->label_bill_number->setText(tr("Bill no.: %1").arg(_bartender->GetSelectedOrderNumber()));
+    ui->label_client_number->setText(tr("Customer card: %1").arg(_bartender->GetSelectedOrderCustomerID()));
     ui->label_value->setText(formatAmount(_bartender->GetSelectedOrderCost()));
 }
 
 void EditWindow::onBillSelected(const QString &label)
 {
-    if(label == tr("Nowy rachunek"))
+    if(label == tr("New bill"))
     {
         _bartender->AddOrder();
         ui->box_bills->addItem(_bartender->GetSelectedOrderNumber());

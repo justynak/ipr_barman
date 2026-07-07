@@ -11,21 +11,74 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Log in</string>
   </property>
-  <widget class="QPushButton" name="buttonLogin">
-   <property name="geometry">
-    <rect>
-     <x>70</x>
-     <y>40</y>
-     <width>221</width>
-     <height>141</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>SKANUJ KARTĘ</string>
-   </property>
-  </widget>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <spacer name="spacerTop">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_title">
+     <property name="font">
+      <font>
+       <pointsize>40</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>BARMAN</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="spacerMiddle">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>50</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item alignment="Qt::AlignHCenter">
+    <widget class="QPushButton" name="buttonLogin">
+     <property name="minimumSize">
+      <size>
+       <width>320</width>
+       <height>140</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>320</width>
+       <height>140</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>SCAN CARD</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="spacerBottom">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </spacer>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
