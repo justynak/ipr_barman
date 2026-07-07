@@ -7,7 +7,6 @@
 
 #include "product.h"
 #include "order.h"
-#include "local.h"
 
 #define LOCAL_NAME  "Boboli_8_Warszawa"
 

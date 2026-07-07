@@ -24,12 +24,12 @@ QList<Product> DatabaseConnector::GetProductsFromCategory(QString category)
     QList<Product> list;
     QSqlQuery q;
 
-    QString command = QString("select a.nazwa, cena_aktualna, min(s.ilosc) from d_bar_artykul "
-                              "join m_artykul as a on a.nazwa = d_bar_artykul.d_numer_artykulu "
-                              "join m_artykul_skladnik as a_s on a.nazwa = a_s.m_Artykul_nazwa "
-                              "join m_skladnik as s on a_s.m_Skladnik_nazwa = s.nazwa  "
-                              "where kategoria = \"%1\" and d_numer_baru = '%2' "
-                              "group by a.nazwa ").arg(category).arg(LOCAL_NAME);
+    QString command = QString("select p.name, current_price, min(i.quantity) from bar_product "
+                              "join product as p on p.name = bar_product.product_name "
+                              "join product_ingredient as p_i on p.name = p_i.product_name "
+                              "join ingredient as i on p_i.ingredient_name = i.name  "
+                              "where category = \"%1\" and bar_id = '%2' "
+                              "group by p.name ").arg(category).arg(LOCAL_NAME);
 
     q.exec(command);
 
@@ -52,10 +52,10 @@ QList<QString> DatabaseConnector::GetCategories()
 {
     QList<QString> list;
     QSqlQuery q;
-    QString command = QObject::tr("SELECT DISTINCT kategoria FROM "
-                                  "d_bar_artykul as b join m_artykul as a "
-                                  "on b.d_numer_artykulu = a.nazwa "
-                                  "WHERE b.d_numer_baru = '%1' order by kategoria").arg(LOCAL_NAME);
+    QString command = QObject::tr("SELECT DISTINCT category FROM "
+                                  "bar_product as b join product as p "
+                                  "on b.product_name = p.name "
+                                  "WHERE b.bar_id = '%1' order by category").arg(LOCAL_NAME);
     q.exec(command);
 
     while(q.next())
@@ -65,10 +65,8 @@ QList<QString> DatabaseConnector::GetCategories()
 
 bool DatabaseConnector::BartenderExists(QString number)
 {
-    //this->connect();
-
     QSqlQuery q;
-    QString command = QObject::tr("SELECT * FROM  d_barman WHERE pesel = '%1' ").arg(number);
+    QString command = QObject::tr("SELECT * FROM  bartender WHERE card_number = '%1' ").arg(number);
     q.exec(command);
 
     q.first();
@@ -78,10 +76,8 @@ bool DatabaseConnector::BartenderExists(QString number)
 
 QString DatabaseConnector::GetRandomBartender()
 {
-    //this->connect();
-
     QSqlQuery q;
-    QString command = QObject::tr("SELECT pesel FROM  d_barman");
+    QString command = QObject::tr("SELECT card_number FROM  bartender");
     q.exec(command);
 
     QList<QString> list;
@@ -98,10 +94,8 @@ QString DatabaseConnector::GetRandomBartender()
 
 QString DatabaseConnector::GetBartenderName(QString number)
 {
-    //this->connect();
-
     QSqlQuery q;
-    QString command = QObject::tr("SELECT imie FROM  d_barman WHERE pesel = '%1'").arg(number);
+    QString command = QObject::tr("SELECT first_name FROM  bartender WHERE card_number = '%1'").arg(number);
     q.exec(command);
 
     q.first();
@@ -112,10 +106,8 @@ QString DatabaseConnector::GetBartenderName(QString number)
 
 QString DatabaseConnector::GetBartenderSurame(QString number)
 {
-    //this->connect();
-
     QSqlQuery q;
-    QString command = QObject::tr("SELECT nazwisko FROM  d_barman WHERE pesel = '%1'").arg(number);
+    QString command = QObject::tr("SELECT last_name FROM  bartender WHERE card_number = '%1'").arg(number);
     q.exec(command);
 
     q.first();
@@ -126,12 +118,10 @@ QString DatabaseConnector::GetBartenderSurame(QString number)
 
 QList<Product>* DatabaseConnector::GetProductsFromBill(QString billNumber)
 {
-    //this->connect();
-
     QSqlQuery q;
-    QString command = QObject::tr("select d_nazwa_artykulu, ilosc "
-                                  "from d_zamowienie_artykul "
-                                  "where d_numer_zamowienia =%1").arg(billNumber);
+    QString command = QObject::tr("select product_name, quantity "
+                                  "from order_item "
+                                  "where order_number =%1").arg(billNumber);
     q.exec(command);
 
     QList<Product>* list = new QList<Product>;
@@ -142,10 +132,8 @@ QList<Product>* DatabaseConnector::GetProductsFromBill(QString billNumber)
         p.SetName(q.value(0).toString());
         p.SetNumber(q.value(1).toInt());
 
-        //this->connect();
-
         QSqlQuery query;
-        QString command2 = QObject::tr("select cena_aktualna from m_artykul where nazwa = '%1' ").arg(q.value(0).toString());
+        QString command2 = QObject::tr("select current_price from product where name = '%1' ").arg(q.value(0).toString());
         query.exec(command2);
         query.first();
         double price = query.value(0).toDouble();
@@ -161,10 +149,8 @@ QList<Product>* DatabaseConnector::GetProductsFromBill(QString billNumber)
 
 QList<Order> DatabaseConnector::GetOrders(QString bartenderNumber)
 {
-    //this->connect();
-
     QSqlQuery q;
-    QString command = QObject::tr("SELECT nr_zamowienia, d_numer_karty FROM  d_zamowienie WHERE d_barman_pesel = '%1'").arg(bartenderNumber);
+    QString command = QObject::tr("SELECT order_number, customer_card_number FROM  customer_order WHERE bartender_card_number = '%1'").arg(bartenderNumber);
     q.exec(command);
 
     QList<Order> list;
@@ -187,7 +173,7 @@ QString DatabaseConnector::GetRandomCustomerID()
     QList<QString> list;
     QSqlQuery q;
 
-    QString command = QObject::tr("SELECT numer_karty FROM d_staly_klient");
+    QString command = QObject::tr("SELECT card_number FROM loyal_customer");
     q.exec(command);
 
     while(q.next())
@@ -207,7 +193,7 @@ QString DatabaseConnector::GetRandomCustomerID()
 bool DatabaseConnector::CustomerExists(QString number)
 {
     QSqlQuery q;
-    QString command = QObject::tr("SELECT numer_karty FROM d_staly_klient WHERE numer_karty = '%1'").arg(number);
+    QString command = QObject::tr("SELECT card_number FROM loyal_customer WHERE card_number = '%1'").arg(number);
     q.exec(command);
 
     q.first();
@@ -218,68 +204,63 @@ bool DatabaseConnector::CustomerExists(QString number)
 bool DatabaseConnector::SetCustomerIDinOrder(QString number, QString orderNumber)
 {
     QSqlQuery q;
-    return q.exec(QObject::tr("UPDATE d_zamowienie SET d_numer_karty = '%1' "
-                                  "WHERE nr_zamowienia = %2").arg(number).arg(orderNumber));
+    return q.exec(QObject::tr("UPDATE customer_order SET customer_card_number = '%1' "
+                                  "WHERE order_number = %2").arg(number).arg(orderNumber));
 }
 
 
 
 bool DatabaseConnector::RemoveProductFromOrder(QString billNumber, Product p)
 {
-    //this->connect();
-
     QSqlQuery q;
-    QString command = QObject::tr("delete from`d_zamowienie_artykul` "
-                                  "where `d_numer_zamowienia` = '%1' "
-                                  "and `d_nazwa_artykulu` = '%2' "
-                                  "and `ilosc` = '%3'").arg(billNumber).arg(p.GetName()).arg(p.GetNumber());
+    QString command = QObject::tr("delete from`order_item` "
+                                  "where `order_number` = '%1' "
+                                  "and `product_name` = '%2' "
+                                  "and `quantity` = '%3'").arg(billNumber).arg(p.GetName()).arg(p.GetNumber());
     q.exec(command);
     q.finish();
 
-    command = QObject::tr("update `m_skladnik` set `ilosc` = `ilosc` + %1 "
-                 "where `nazwa` in "
-                 "(select `m_Skladnik_nazwa` from `m_artykul_skladnik` "
-                 "where `m_Artykul_nazwa` = \"%2\" )").arg(p.GetNumber()).arg(p.GetName());
+    command = QObject::tr("update `ingredient` set `quantity` = `quantity` + %1 "
+                 "where `name` in "
+                 "(select `ingredient_name` from `product_ingredient` "
+                 "where `product_name` = \"%2\" )").arg(p.GetNumber()).arg(p.GetName());
 
     return q.exec(command);
 }
 
 bool DatabaseConnector::AddProductToOrder(QString billNumber, Product p)
 {
-    //this->connect();
-
     QSqlQuery q;
-    QString command = QObject::tr("insert into `d_zamowienie_artykul` (`d_numer_zamowienia`, `d_nazwa_artykulu`, `ilosc`)"
+    QString command = QObject::tr("insert into `order_item` (`order_number`, `product_name`, `quantity`)"
                                   "values ( '%1', '%2' ,'%3')").arg(billNumber).arg(p.GetName()).arg(p.GetNumber());
     q.exec(command);
     q.finish();
 
-    command = QObject::tr("update `m_skladnik` set `ilosc` = `ilosc` - %1 "
-                          "where `nazwa` in "
-                          "(select `m_Skladnik_nazwa` from `m_artykul_skladnik` "
-                          "where `m_Artykul_nazwa` = \"%2\" )").arg(p.GetNumber()).arg(p.GetName());
+    command = QObject::tr("update `ingredient` set `quantity` = `quantity` - %1 "
+                          "where `name` in "
+                          "(select `ingredient_name` from `product_ingredient` "
+                          "where `product_name` = \"%2\" )").arg(p.GetNumber()).arg(p.GetName());
     return q.exec(command);
 }
 
 
 bool DatabaseConnector::ChangeProductNumber(QString billNumber, Product p)
 {
-    //this->connect();
     int available;
 
     QSqlQuery q;
-    QString command_n = QString("update `d_zamowienie_artykul` "
-                                "set ilosc = %3 "
-                                "where d_nazwa_artykulu = '%1' "
-                                "and d_numer_zamowienia = %2 ").arg(p.GetName()).arg(billNumber).arg(p.GetNumber());
+    QString command_n = QString("update `order_item` "
+                                "set quantity = %3 "
+                                "where product_name = '%1' "
+                                "and order_number = %2 ").arg(p.GetName()).arg(billNumber).arg(p.GetNumber());
     q.exec(command_n);
     q.first();
     available = q.value(0).toInt();
 
-    QString command = QObject::tr("update `m_skladnik` set `ilosc` = %1 "
-                     "where `nazwa` in "
-                     "(select `m_Skladnik_nazwa` from `m_artykul_skladnik` "
-                     "where `m_Artykul_nazwa` = \"%2\" )").arg(p.GetNumber()).arg(p.GetPrice());
+    QString command = QObject::tr("update `ingredient` set `quantity` = %1 "
+                     "where `name` in "
+                     "(select `ingredient_name` from `product_ingredient` "
+                     "where `product_name` = \"%2\" )").arg(p.GetNumber()).arg(p.GetPrice());
 
     return q.exec(command);
 }
@@ -288,33 +269,30 @@ bool DatabaseConnector::ChangeProductNumber(QString billNumber, Product p)
 
 bool DatabaseConnector::CloseOrder(QString billNumber)
 {
-    //this->connect();
     QSqlQuery q;
-    QString command = QObject::tr("UPDATE d_zamowienie SET zamkniety= '1' "
-                                  "WHERE nr_zamowienia = %1").arg(billNumber);
+    QString command = QObject::tr("UPDATE customer_order SET closed= '1' "
+                                  "WHERE order_number = %1").arg(billNumber);
     return q.exec(command);
 }
 
 bool DatabaseConnector::RemoveOrder(QString billNumber)
 {
     QSqlQuery query;
-    QString command = QObject::tr("delete from `d_zamowienie_artykul` where d_numer_zamowienia = %1").arg(billNumber);
+    QString command = QObject::tr("delete from `order_item` where order_number = %1").arg(billNumber);
     query.exec(command);
     query.finish();
 
-    command = QObject::tr("delete from `d_zamowienie` where nr_zamowienia = %1").arg(billNumber);
+    command = QObject::tr("delete from `customer_order` where order_number = %1").arg(billNumber);
     return query.exec(command);
 }
 
 bool DatabaseConnector::CreateOrder(QString bartenderNumber, Order* newOrder)
 {
-    //this->connect();
-
     QString date = QDate::currentDate().toString(Qt::ISODate);
 
     QSqlQuery query;
 
-    QString command = QObject::tr("INSERT INTO d_zamowienie(d_barman_PESEL, data_zamowienia) VALUES('%1', '%2')"
+    QString command = QObject::tr("INSERT INTO customer_order(bartender_card_number, order_date) VALUES('%1', '%2')"
                                   ).arg(bartenderNumber).arg(date);
 
     bool ok = query.exec(command);
@@ -322,7 +300,7 @@ bool DatabaseConnector::CreateOrder(QString bartenderNumber, Order* newOrder)
 
     if(ok)
     {
-        command = QString("SELECT MAX(nr_zamowienia) FROM d_zamowienie");
+        command = QString("SELECT MAX(order_number) FROM customer_order");
         query.exec(command);
         query.first();
         QString *number = new QString(query.value(0).toString());
@@ -330,6 +308,3 @@ bool DatabaseConnector::CreateOrder(QString bartenderNumber, Order* newOrder)
     }
     return ok;
 }
-
-
-
