@@ -1,17 +1,14 @@
 #include "bartender.h"
 
-Bartender::Bartender(QString pesel) : _pesel(pesel)
+Bartender::Bartender(BarRepository* repository, CardScanner* customerScanner, QString pesel) : _pesel(pesel)
 {
-    db = DatabaseConnector::GetInstance();
+    db = repository;
 
-    QString name = db->GetBartenderName(_pesel);
-    QString surname = db->GetBartenderSurame(_pesel);
-
-    _name = name;
-    _surname = surname;
+    _name = db->GetBartenderName(_pesel);
+    _surname = db->GetBartenderSurname(_pesel);
 
     //init order manager
-    _oManager = new OrderManager(_pesel);
+    _oManager = new OrderManager(db, customerScanner, _pesel);
 }
 
 Bartender::~Bartender()
@@ -26,7 +23,7 @@ void Bartender::SetName()
 
 void Bartender::SetSurname()
 {
-    _surname = db->GetBartenderSurame(_pesel);
+    _surname = db->GetBartenderSurname(_pesel);
 }
 
 bool Bartender::AddProduct()
