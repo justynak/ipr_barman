@@ -1,4 +1,5 @@
 #include "editwindow.h"
+#include "theme.h"
 #include "ui_editwindow.h"
 #include "manageproductwindow.h"
 #include "detailswindow.h"
@@ -18,6 +19,8 @@ EditWindow::EditWindow(Bartender *bartender, QWidget *parent) :
     _bartender(bartender)
 {
     ui->setupUi(this);
+
+    Theme::LetterSpace(ui->label, 8);
 
     ui->label_logged_as->setText(tr("Shift #%1 — %2 %3 (%4)")
                                  .arg(_bartender->GetShiftId())

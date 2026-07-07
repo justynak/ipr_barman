@@ -1,19 +1,22 @@
 /* Barman theme — cream / espresso / bottle green.
  *
  * Palette:
- *   #fff2cc  cream       — surfaces
- *   #4d1d14  espresso    — text, borders, table headers
- *   #003300  bottle green — buttons, selection
- * Hover/pressed greens and the light field cream are derived shades of the
- * three base colours; translucent espresso is used for hairlines.
+ *   #f7e8c0  parchment    — window canvas (deepened cream, so cards pop)
+ *   #fffdf5  ivory        — fields, tables, "cards"
+ *   #4d1d14  espresso     — text, hairlines, table headers
+ *   #003300  bottle green — primary buttons, selection, login canvas
+ * Hover/pressed greens are derived shades; translucent espresso is used for
+ * hairlines. Secondary/destructive actions are espresso-outlined ghosts so
+ * the one solid green button per screen reads as the primary action.
  *
  * Only font-family is set app-wide: per-widget point sizes from the .ui
  * files (headings at 32pt etc.) must survive, and a stylesheet font-size on
- * QWidget/QLabel would override them all.
+ * QWidget/QLabel would override them all. Letter-spacing on the headings is
+ * applied in code (theme.h) — QSS has no property for it.
  */
 
 QWidget {
-    background-color: #fff2cc;
+    background-color: #f7e8c0;
     color: #4d1d14;
     font-family: "Georgia", "DejaVu Serif", "Palatino Linotype", serif;
 }
@@ -22,12 +25,14 @@ QLabel {
     background: transparent;
 }
 
+/* --- Buttons: solid green pill = primary action --- */
+
 QPushButton {
     background-color: #003300;
     color: #fff2cc;
     border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
+    border-radius: 22px;
+    padding: 12px 26px;
     font-size: 16px;
     font-weight: bold;
 }
@@ -42,20 +47,64 @@ QPushButton:disabled {
     color: rgba(255, 242, 204, 60%);
 }
 
-QPushButton#buttonLogin {
+/* Round quantity steppers (− / +) */
+QPushButton#button_add, QPushButton#button_remove {
+    border-radius: 26px;
+    padding: 0;
     font-size: 24px;
-    border-radius: 14px;
 }
+
+/* Ghost buttons: secondary / destructive (Cancel, Cancel bill) */
+QPushButton#button_discard, QPushButton#button_delete_bill {
+    background-color: transparent;
+    border: 2px solid #4d1d14;
+    color: #4d1d14;
+}
+QPushButton#button_discard:hover, QPushButton#button_delete_bill:hover {
+    background-color: #4d1d14;
+    color: #fff2cc;
+}
+QPushButton#button_discard:pressed, QPushButton#button_delete_bill:pressed {
+    background-color: #38150e;
+    color: #fff2cc;
+}
+
+/* --- Login screen: full-bleed bottle green, speakeasy style --- */
+
+QWidget#LoginWindow {
+    background-color: #003300;
+}
+QWidget#LoginWindow QLabel {
+    color: #fff2cc;
+}
+QPushButton#buttonLogin {
+    background-color: transparent;
+    border: 2px solid #fff2cc;
+    border-radius: 46px;
+    color: #fff2cc;
+    font-size: 20px;
+}
+QPushButton#buttonLogin:hover {
+    background-color: #fff2cc;
+    color: #003300;
+}
+QPushButton#buttonLogin:pressed {
+    background-color: rgba(255, 242, 204, 80%);
+    color: #003300;
+}
+
+/* --- Inputs --- */
 
 QComboBox {
     background-color: #fffdf5;
     border: 1px solid #4d1d14;
-    border-radius: 6px;
-    padding: 6px 12px;
+    border-radius: 10px;
+    padding: 8px 14px;
     font-size: 16px;
 }
-QComboBox:hover {
-    border-color: #003300;
+QComboBox:hover, QComboBox:focus {
+    border: 2px solid #003300;
+    padding: 7px 13px;
 }
 QComboBox::drop-down {
     border: none;
@@ -69,22 +118,28 @@ QComboBox QAbstractItemView {
     selection-color: #fff2cc;
 }
 
+/* --- Tables: ivory cards, horizontal hairlines only --- */
+
 QTableWidget {
     background-color: #fffdf5;
-    alternate-background-color: #fff7dd;
-    border: 1px solid rgba(77, 29, 20, 40%);
-    border-radius: 6px;
-    gridline-color: rgba(77, 29, 20, 20%);
+    alternate-background-color: #f9eecd;
+    border: 1px solid rgba(77, 29, 20, 45%);
+    border-radius: 8px;
+    gridline-color: transparent;
     font-size: 15px;
     selection-background-color: #003300;
     selection-color: #fff2cc;
+}
+QTableWidget::item {
+    padding: 6px;
+    border-bottom: 1px solid rgba(77, 29, 20, 15%);
 }
 QHeaderView::section {
     background-color: #4d1d14;
     color: #fff2cc;
     border: none;
-    padding: 8px;
-    font-size: 15px;
+    padding: 10px 8px;
+    font-size: 14px;
     font-weight: bold;
 }
 QTableCornerButton::section {
@@ -93,7 +148,7 @@ QTableCornerButton::section {
 }
 
 QScrollBar:vertical {
-    background: #fff2cc;
+    background: transparent;
     width: 12px;
 }
 QScrollBar::handle:vertical {

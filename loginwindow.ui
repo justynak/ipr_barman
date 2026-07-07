@@ -56,14 +56,14 @@
     <widget class="QPushButton" name="buttonLogin">
      <property name="minimumSize">
       <size>
-       <width>320</width>
-       <height>140</height>
+       <width>340</width>
+       <height>92</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>320</width>
-       <height>140</height>
+       <width>340</width>
+       <height>92</height>
       </size>
      </property>
      <property name="text">

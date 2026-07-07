@@ -1,4 +1,5 @@
 #include "detailswindow.h"
+#include "theme.h"
 #include "ui_detailswindow.h"
 
 DetailsWindow::DetailsWindow(DraftOrder draft, QString currency, QWidget *parent) :
@@ -8,6 +9,8 @@ DetailsWindow::DetailsWindow(DraftOrder draft, QString currency, QWidget *parent
     _currency(currency)
 {
     ui->setupUi(this);
+
+    Theme::LetterSpace(ui->label, 8);
 
     ui->table_costs->setRowCount(0);
     ui->table_costs->setColumnCount(3);

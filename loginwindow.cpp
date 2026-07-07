@@ -1,4 +1,5 @@
 #include "loginwindow.h"
+#include "theme.h"
 #include "ui_loginwindow.h"
 
 LoginWindow::LoginWindow(CardScanner* loginScanner, BarRepository* repository, QWidget *parent) :
@@ -8,6 +9,9 @@ LoginWindow::LoginWindow(CardScanner* loginScanner, BarRepository* repository, Q
     _repository(repository)
 {
     ui->setupUi(this);
+
+    Theme::LetterSpace(ui->label_title, 14);
+    Theme::LetterSpace(ui->buttonLogin, 4);
 
     connect(ui->buttonLogin, &QPushButton::clicked, this, &LoginWindow::onLoginClicked);
 }

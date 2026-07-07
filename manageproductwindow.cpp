@@ -1,4 +1,5 @@
 #include "manageproductwindow.h"
+#include "theme.h"
 #include "ui_manageproductwindow.h"
 
 ManageProductWindow::ManageProductWindow(ProductManager *manager, QWidget *parent) :
@@ -7,6 +8,8 @@ ManageProductWindow::ManageProductWindow(ProductManager *manager, QWidget *paren
     _productManager(manager)
 {
     ui->setupUi(this);
+
+    Theme::LetterSpace(ui->label, 8);
 
     _productManager->ClearSelection();
 
