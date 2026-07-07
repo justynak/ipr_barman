@@ -16,7 +16,7 @@ Bartender::Bartender(QString pesel) : _pesel(pesel)
 
 Bartender::~Bartender()
 {
-    delete _oManager;
+    if(_oManager != NULL) delete _oManager;
 }
 
 void Bartender::SetName()
@@ -26,7 +26,7 @@ void Bartender::SetName()
 
 void Bartender::SetSurname()
 {
-    _name = db->GetBartenderSurame(_pesel);
+    _surname = db->GetBartenderSurame(_pesel);
 }
 
 bool Bartender::AddProduct()

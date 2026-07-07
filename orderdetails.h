@@ -2,6 +2,10 @@
 #define ORDERDETAILS_H
 #include "order.h"
 
+// Discount rate for loyal customers — the single definition, used by both
+// OrderDetails and OrderManager.
+const double LOYAL_CUSTOMER_DISCOUNT = 0.1;
+
 class OrderDetails
 {
 
@@ -13,13 +17,13 @@ private:
 public:
     OrderDetails();
     OrderDetails(Order* o);
-    ~OrderDetails();
 
     void SetDiscount(double discount){_discount = discount;}
     double GetDiscount(){return _discount;}
-    QList<Product>* GetProductList(){return _order->GetProductList();}
-    QString GetOrderNumber(){return _order->GetOrderNumber();}
+    QList<Product> GetProductList();
+    QString GetOrderNumber();
     double GetCost(){return _cost;}
+    double GetDiscountedCost(){return _cost * (1.0 - _discount);}
 
     void RecalculateCost();
 

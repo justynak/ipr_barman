@@ -1,25 +1,23 @@
 #ifndef ORDER_H
 #define ORDER_H
-#include <QDate>
+#include <QList>
 #include "product.h"
 
 
 class Order
 {
 private:
-    QList<Product>* _productList;
+    QList<Product> _productList;
     QString _orderNumber;
-    QDate _date;
     QString _customerID;
 
 public:
     Order();
     Order(QString orderNumber);
-    ~Order();
 
-    void SetProductList(QList<Product>* list);
+    void SetProductList(QList<Product> list);
 
-    QList<Product>* GetProductList();
+    QList<Product> GetProductList();
 
     void AddProduct(Product p);
     void RemoveProduct(Product p);

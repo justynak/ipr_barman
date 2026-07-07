@@ -40,11 +40,11 @@ public:
 
     QList<QString> GetOrders();
     QList<Product> GetProducts();
-    QString GetSelectedOrderNumber(){return _selectedOrder->GetOrderNumber();}
+    QString GetSelectedOrderNumber(){return _selectedOrder != NULL ? _selectedOrder->GetOrderNumber() : QString("");}
     Order* GetSelectedOrder(){return _selectedOrder;}
     ProductManager* GetProductManager(){return _pManager;}
 
-    QString GetCustomerID(){return _selectedOrder->GetCustomerID();}
+    QString GetCustomerID(){return _selectedOrder != NULL ? _selectedOrder->GetCustomerID() : QString("");}
     OrderDetails* GetOrderDetails(){return _oDetails;}
     double GetCost(){return _oDetails->GetCost();}
 };

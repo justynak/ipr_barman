@@ -8,10 +8,10 @@ OrderList::OrderList(QString bartenderNumber)
 
 void OrderList::AddOrder(QString bartenderNumber)
 {
-    Order* p = new Order();
-    db->CreateOrder(bartenderNumber, p);
+    Order o;
+    db->CreateOrder(bartenderNumber, &o);
 
-    _list.append(*p);
+    _list.append(o);
 }
 
 void OrderList::RemoveOrder(Order p)
@@ -34,6 +34,7 @@ Order* OrderList::GetOrderByName(QString billName)
     Order o(billName);
 
     int i = _list.lastIndexOf(o);
+    if(i < 0)
+        return NULL;
     return &(_list[i]);
 }
-
