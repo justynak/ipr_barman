@@ -10,16 +10,17 @@ ManageProductWindow::ManageProductWindow(ProductManager *manager, QWidget *paren
     _productManager->ClearSelection();
 
     //fill the box with categories
-    QList<QString> categories = _productManager->GetCategoryList();
-
-    foreach(QString cat, categories)
+    foreach(QString category, _productManager->GetCategoryList())
     {
-        ui->box_categories->addItem(cat);
+        ui->box_categories->addItem(category);
     }
 
-    connect(ui->box_categories, SIGNAL(activated(QString)), this, SLOT(on_box_categories_activated(QString)));
-    connect(ui->box_products, SIGNAL(activated(QString)), this, SLOT(on_box_products_activated(QString)));
-
+    connect(ui->box_categories, &QComboBox::textActivated, this, &ManageProductWindow::onCategorySelected);
+    connect(ui->box_products, &QComboBox::textActivated, this, &ManageProductWindow::onProductSelected);
+    connect(ui->button_add, &QPushButton::clicked, this, &ManageProductWindow::onAddClicked);
+    connect(ui->button_remove, &QPushButton::clicked, this, &ManageProductWindow::onRemoveClicked);
+    connect(ui->button_approve, &QPushButton::clicked, this, &ManageProductWindow::accept);
+    connect(ui->button_discard, &QPushButton::clicked, this, &ManageProductWindow::reject);
 }
 
 ManageProductWindow::~ManageProductWindow()
@@ -27,20 +28,19 @@ ManageProductWindow::~ManageProductWindow()
     delete ui;
 }
 
-void ManageProductWindow::on_box_categories_activated(const QString &arg1)
+void ManageProductWindow::onCategorySelected(const QString &category)
 {
-    QList<Product> list = _productManager->GetAvailableProducts(arg1);
     ui->box_products->clear();
 
-    foreach (Product p, list)
+    foreach (Product p, _productManager->GetAvailableProducts(category))
     {
         ui->box_products->addItem(p.GetName());
     }
 }
 
-void ManageProductWindow::on_box_products_activated(const QString &arg1)
+void ManageProductWindow::onProductSelected(const QString &name)
 {
-    Product* pr =  _productManager->GetProductByName(arg1);
+    Product* pr = _productManager->GetProductByName(name);
     if(pr == NULL) return;
 
     _productManager->SetSelectedProduct(*pr);
@@ -49,7 +49,7 @@ void ManageProductWindow::on_box_products_activated(const QString &arg1)
     ui->label_number->setText(tr("%1").arg(_productManager->GetSelectedQuantity()));
 }
 
-void ManageProductWindow::on_button_add_clicked()
+void ManageProductWindow::onAddClicked()
 {
     int number = _productManager->GetSelectedQuantity() + 1;
 
@@ -60,24 +60,11 @@ void ManageProductWindow::on_button_add_clicked()
     ui->label_number->setText(tr("%1").arg(_productManager->GetSelectedQuantity()));
 }
 
-void ManageProductWindow::on_button_remove_clicked()
+void ManageProductWindow::onRemoveClicked()
 {
     int number = _productManager->GetSelectedQuantity() - 1;
     if(number < 0) number = 0;
 
     _productManager->SetSelectedQuantity(number);
     ui->label_number->setText(tr("%1").arg(number));
-}
-
-void ManageProductWindow::on_button_approve_clicked()
-{
-    //close window
-    this->done(0);
-}
-
-void ManageProductWindow::on_button_discard_clicked()
-{
-    // nothing selected = nothing gets added to the bill
-    _productManager->ClearSelection();
-    this->done(0);
 }

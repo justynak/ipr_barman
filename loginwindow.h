@@ -22,7 +22,7 @@ signals:
     void logged(QString bartenderNumber);
 
 private slots:
-    void on_buttonLogin_clicked();
+    void onLoginClicked();
 
 private:
     Ui::LoginWindow *ui;

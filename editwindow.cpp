@@ -6,8 +6,8 @@
 
 #define COL_PRODUCT     0
 #define COL_ADD_ONE     1
-#define COL_REMOVE_ONE  3
 #define COL_NUMBER      2
+#define COL_REMOVE_ONE  3
 #define COL_PRICE       4
 #define COL_DELETE      5
 
@@ -18,29 +18,21 @@ EditWindow::EditWindow(Bartender *bartender, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->label_logged_as->setText(tr("Zalogowany jako: %1 %2").arg(_bartender->GetName()).arg(_bartender->GetSurname()));
+    ui->label_logged_as->setText(tr("Zmiana #%1 — %2 %3 (%4)")
+                                 .arg(_bartender->GetShiftId())
+                                 .arg(_bartender->GetName())
+                                 .arg(_bartender->GetSurname())
+                                 .arg(_bartender->GetRole()));
 
-    QList<QString> list = _bartender->GetOrders();
-    ui->box_bills->addItem(tr("Nowy rachunek"));
-    foreach (QString number, list)
-    {
-        ui->box_bills->addItem(tr("%1").arg(number));
-    }
+    refreshBillsCombo();
+    setupProductTable();
 
-    ui->product_list->setRowCount(0);
-    ui->product_list->setColumnCount(6);
-    ui->product_list->setColumnWidth(COL_PRODUCT, 352);
-    ui->product_list->setColumnWidth(COL_ADD_ONE, 50);
-    ui->product_list->setColumnWidth(COL_REMOVE_ONE, 50);
-    ui->product_list->setColumnWidth(COL_DELETE, 150);
-    QStringList a;
-    a<<"Produkt"<<""<<"Ilość"<<""<<"Cena"<<"Usuń";
-    ui->product_list->setHorizontalHeaderLabels(a);
-
-    //connects
-    connect(ui->box_bills, SIGNAL(activated(QString)), this, SLOT(on_box_bills_activated(QString)));
-    connect(ui->product_list, SIGNAL(cellClicked(int,int)), this, SLOT(on_product_list_cellActivated(int,int)));
-    connect(ui->button_delete_bill, SIGNAL(clicked()), this, SLOT(on_button_delete_bill_clicked()));
+    connect(ui->box_bills, &QComboBox::textActivated, this, &EditWindow::onBillSelected);
+    connect(ui->product_list, &QTableWidget::cellClicked, this, &EditWindow::onProductCellClicked);
+    connect(ui->button_add_product, &QPushButton::clicked, this, &EditWindow::onAddProductClicked);
+    connect(ui->button_delete_bill, &QPushButton::clicked, this, &EditWindow::onDeleteBillClicked);
+    connect(ui->button_print_bill, &QPushButton::clicked, this, &EditWindow::onPrintBillClicked);
+    connect(ui->button_scan_client_card, &QPushButton::clicked, this, &EditWindow::onScanClientCardClicked);
 }
 
 EditWindow::~EditWindow()
@@ -48,183 +40,152 @@ EditWindow::~EditWindow()
     delete ui;
 }
 
-void EditWindow::on_box_bills_activated(const QString &arg1)
+QString EditWindow::formatAmount(Money amount) const
+{
+    return QString("%1 %2").arg(moneyToDecimalString(amount)).arg(_bartender->GetCurrency());
+}
+
+void EditWindow::setupProductTable()
 {
     ui->product_list->clear();
-
     ui->product_list->setRowCount(0);
     ui->product_list->setColumnCount(6);
     ui->product_list->setColumnWidth(COL_PRODUCT, 352);
     ui->product_list->setColumnWidth(COL_ADD_ONE, 50);
     ui->product_list->setColumnWidth(COL_REMOVE_ONE, 50);
     ui->product_list->setColumnWidth(COL_DELETE, 150);
-    QStringList a;
-    a<<"Produkt"<<""<<"Ilość"<<""<<"Cena"<<"Usuń";
-    ui->product_list->setHorizontalHeaderLabels(a);
 
-    if(arg1 == "Nowy rachunek")
-    {
-       _bartender->AddOrder();
+    QStringList headers;
+    headers << tr("Produkt") << "" << tr("Ilość") << "" << tr("Cena") << tr("Usuń");
+    ui->product_list->setHorizontalHeaderLabels(headers);
+}
 
-       // the new draft appears in the combo box under its label
-       ui->box_bills->addItem(_bartender->GetSelectedOrderNumber());
-    }
+void EditWindow::refreshBill()
+{
+    setupProductTable();
 
-    else
-    {
-        _bartender->SetOrder(arg1);
-    }
+    QList<OrderLine> lines = _bartender->GetOrderLines();
 
-    ui->label_bill_number->setText(tr("Numer rachunku: %1 ").arg(_bartender->GetSelectedOrderNumber()));
-    QList<OrderLine> list = _bartender->GetOrderLines();
-
-    for(int i=0; i<list.count(); ++i)
+    for(int i = 0; i < lines.count(); ++i)
     {
         QTableWidgetItem* item[6];
-        for(int k=0; k<6; ++k)
+        for(int k = 0; k < 6; ++k)
         {
             item[k] = new QTableWidgetItem();
             item[k]->setFlags(item[k]->flags() ^ Qt::ItemIsEditable);
         }
 
         ui->product_list->insertRow(i);
-        item[COL_PRODUCT]->setText(list[i].productName);
+        item[COL_PRODUCT]->setText(lines[i].productName);
         item[COL_ADD_ONE]->setText(tr("+"));
-        item[COL_NUMBER]->setText(tr("%1").arg(list[i].quantity));
+        item[COL_NUMBER]->setText(tr("%1").arg(lines[i].quantity));
         item[COL_REMOVE_ONE]->setText(tr("-"));
-        item[COL_PRICE]->setText(moneyToDecimalString(list[i].unitPrice));
+        item[COL_PRICE]->setText(moneyToDecimalString(lines[i].unitPrice));
         item[COL_DELETE]->setText(tr("X"));
 
-        for(unsigned int j=0; j<6; ++j)
-        {
+        for(int j = 0; j < 6; ++j)
             ui->product_list->setItem(i, j, item[j]);
-        }
-
     }
-    ui->label_client_number->setText(tr("Numer klienta: %1").arg(_bartender->GetSelectedOrderCustomerID()));
-    ui->label_value->setText(tr("%1 zł").arg(moneyToDecimalString(_bartender->GetSelectedOrderCost())));
+
+    updateSummaryLabels();
 }
 
-
-
-void EditWindow::on_product_list_cellActivated(int row, int col)
+void EditWindow::refreshBillsCombo()
 {
-    QList<OrderLine> list = _bartender->GetOrderLines();
-    if(row < 0 || row >= list.size())
+    ui->box_bills->clear();
+    ui->box_bills->addItem(tr("Nowy rachunek"));
+    foreach(QString label, _bartender->GetOrders())
+        ui->box_bills->addItem(label);
+}
+
+void EditWindow::updateSummaryLabels()
+{
+    ui->label_bill_number->setText(tr("Numer rachunku: %1").arg(_bartender->GetSelectedOrderNumber()));
+    ui->label_client_number->setText(tr("Numer klienta: %1").arg(_bartender->GetSelectedOrderCustomerID()));
+    ui->label_value->setText(formatAmount(_bartender->GetSelectedOrderCost()));
+}
+
+void EditWindow::onBillSelected(const QString &label)
+{
+    if(label == tr("Nowy rachunek"))
+    {
+        _bartender->AddOrder();
+        ui->box_bills->addItem(_bartender->GetSelectedOrderNumber());
+    }
+    else
+    {
+        _bartender->SetOrder(label);
+    }
+
+    refreshBill();
+}
+
+void EditWindow::onProductCellClicked(int row, int col)
+{
+    QList<OrderLine> lines = _bartender->GetOrderLines();
+    if(row < 0 || row >= lines.size())
         return;
 
-    OrderLine line = list[row];
-    int number = line.quantity;
+    OrderLine line = lines[row];
 
     switch(col)
     {
         case COL_ADD_ONE:
-            number+=1;
-            _bartender->ChangeProductQuantity(line.productId, number);
-            ui->product_list->item(row, COL_NUMBER)->setText(tr("%1").arg(number));
+            _bartender->ChangeProductQuantity(line.productId, line.quantity + 1);
         break;
 
         case COL_REMOVE_ONE:
-            number-=1;
-            if(number>=1)
-            {
-                _bartender->ChangeProductQuantity(line.productId, number);
-                ui->product_list->item(row, COL_NUMBER)->setText(tr("%1").arg(number));
-            }
+            if(line.quantity - 1 >= 1)
+                _bartender->ChangeProductQuantity(line.productId, line.quantity - 1);
         break;
 
         case COL_DELETE:
-             _bartender->RemoveProduct(line.productId);
-             ui->product_list->removeRow(row);
+            _bartender->RemoveProduct(line.productId);
         break;
+
+        default:
+            return;
     }
-    ui->label_client_number->setText(tr("Numer klienta: %1").arg(_bartender->GetSelectedOrderCustomerID()));
-    ui->label_value->setText(tr("%1 zł").arg(moneyToDecimalString(_bartender->GetSelectedOrderCost())));
+
+    refreshBill();
 }
 
-void EditWindow::on_button_add_product_clicked()
+void EditWindow::onAddProductClicked()
 {
-    ProductManager* manager = _bartender->GetProductManager();
-    ManageProductWindow mpw(manager);
+    ManageProductWindow mpw(_bartender->GetProductManager());
 
-    mpw.exec();
-
-    _bartender->AddProduct();
-    ui->label_client_number->setText(tr("Numer klienta: %1").arg(_bartender->GetSelectedOrderCustomerID()));
-    ui->label_value->setText(tr("%1 zł").arg(moneyToDecimalString(_bartender->GetSelectedOrderCost())));
+    // The product is added only when the dialog was accepted.
+    if(mpw.exec() == QDialog::Accepted)
+    {
+        _bartender->AddProduct();
+        refreshBill();
+    }
 }
 
-void EditWindow::on_button_delete_bill_clicked()
+void EditWindow::onDeleteBillClicked()
 {
     _bartender->RemoveOrder();
 
-    //refresh gui
-    ui->box_bills->clear();
-    QList<QString> list = _bartender->GetOrders();
-    ui->box_bills->addItem(tr("Nowy rachunek"));
-    foreach (QString number, list)
-    {
-        ui->box_bills->addItem(tr("%1").arg(number));
-    }
-
-    ui->product_list->clear();
-    ui->label_bill_number->setText(tr("Numer rachunku: "));
-    ui->product_list->setRowCount(0);
-    ui->product_list->setColumnCount(6);
-    ui->product_list->setColumnWidth(COL_PRODUCT, 352);
-    ui->product_list->setColumnWidth(COL_ADD_ONE, 50);
-    ui->product_list->setColumnWidth(COL_REMOVE_ONE, 50);
-    ui->product_list->setColumnWidth(COL_DELETE, 150);
-    QStringList a;
-    a<<"Produkt"<<""<<"Ilość"<<""<<"Cena"<<"Usuń";
-    ui->product_list->setHorizontalHeaderLabels(a);
-
-    ui->label_client_number->setText(tr("Numer klienta: "));
-    ui->label_value->setText(tr(" zł"));
-
+    refreshBillsCombo();
+    refreshBill();
 }
 
-void EditWindow::on_button_print_bill_clicked()
+void EditWindow::onPrintBillClicked()
 {
-    DetailsWindow dw(_bartender->GetSelectedDraft());
-    int result = dw.exec();
+    DetailsWindow dw(_bartender->GetSelectedDraft(), _bartender->GetCurrency());
 
-    if(result == 1)
+    if(dw.exec() == QDialog::Accepted)
     {
         // One repository call, one transaction; the draft leaves memory.
         _bartender->FinalizeOrder();
 
-        //przełącz widok
-        ui->product_list->clear();
-        ui->label_bill_number->setText(tr("Numer rachunku: "));
-        ui->product_list->setRowCount(0);
-        ui->product_list->setColumnCount(6);
-        ui->product_list->setColumnWidth(COL_PRODUCT, 352);
-        ui->product_list->setColumnWidth(COL_ADD_ONE, 50);
-        ui->product_list->setColumnWidth(COL_REMOVE_ONE, 50);
-        ui->product_list->setColumnWidth(COL_DELETE, 150);
-        QStringList a;
-        a<<"Produkt"<<""<<"Ilość"<<""<<"Cena"<<"Usuń";
-        ui->product_list->setHorizontalHeaderLabels(a);
-
-        //refresh gui
-        ui->box_bills->clear();
-        QList<QString> list = _bartender->GetOrders();
-        ui->box_bills->addItem(tr("Nowy rachunek"));
-        foreach (QString number, list)
-        {
-            ui->box_bills->addItem(tr("%1").arg(number));
-        }
-
-        ui->label_client_number->setText(tr("Numer klienta: "));
-        ui->label_value->setText(tr("Koszt zamówienia:  zł"));
-
+        refreshBillsCombo();
+        refreshBill();
     }
 }
 
-void EditWindow::on_button_scan_client_card_clicked()
+void EditWindow::onScanClientCardClicked()
 {
     _bartender->ScanCustomer();
-    ui->label_client_number->setText(tr("Numer klienta: %1").arg(_bartender->GetSelectedOrderCustomerID()));
-    ui->label_value->setText(tr("%1 zł").arg(moneyToDecimalString(_bartender->GetSelectedOrderCost())));
+    updateSummaryLabels();
 }

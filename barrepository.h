@@ -32,6 +32,9 @@ public:
     virtual Customer FindCustomerByCard(QString cardNumber) = 0;
     virtual QList<QString> GetCustomerCardNumbers() = 0;
 
+    // bar configuration
+    virtual QString GetBarCurrency() = 0;
+
     // The only write path for orders: one call, one transaction. Persists the
     // order row (business_day, discount_rate and currency copies), its
     // order_item lines (product_name / unit_price copies) and one negative

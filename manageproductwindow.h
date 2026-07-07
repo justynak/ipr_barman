@@ -9,6 +9,9 @@ namespace Ui {
 class ManageProductWindow;
 }
 
+// Modal product picker. exec() returns QDialog::Accepted only when the
+// bartender approved a choice; the chosen product and quantity are left in
+// the ProductManager selection.
 class ManageProductWindow : public QDialog
 {
     Q_OBJECT
@@ -21,16 +24,11 @@ private:
     Ui::ManageProductWindow *ui;
     ProductManager* _productManager;
 
-signals:
-    void managerClosed();
-
 private slots:
-    void on_box_categories_activated(const QString &arg1);
-    void on_box_products_activated(const QString &arg1);
-    void on_button_add_clicked();
-    void on_button_remove_clicked();
-    void on_button_approve_clicked();
-    void on_button_discard_clicked();
+    void onCategorySelected(const QString &category);
+    void onProductSelected(const QString &name);
+    void onAddClicked();
+    void onRemoveClicked();
 };
 
 #endif // MANAGEPRODUCTWINDOW_H

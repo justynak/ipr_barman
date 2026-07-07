@@ -8,6 +8,8 @@ LoginWindow::LoginWindow(CardScanner* loginScanner, BarRepository* repository, Q
     _repository(repository)
 {
     ui->setupUi(this);
+
+    connect(ui->buttonLogin, &QPushButton::clicked, this, &LoginWindow::onLoginClicked);
 }
 
 LoginWindow::~LoginWindow()
@@ -15,7 +17,7 @@ LoginWindow::~LoginWindow()
     delete ui;
 }
 
-void LoginWindow::on_buttonLogin_clicked()
+void LoginWindow::onLoginClicked()
 {
     QString cardNumber = _loginScanner->ScanCard();
 

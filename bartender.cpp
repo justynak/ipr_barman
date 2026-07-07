@@ -6,6 +6,7 @@ Bartender::Bartender(BarRepository* repository, CardScanner* customerScanner,
     db = repository;
     _employee = employee;
     _shiftId = shiftId;
+    _currency = db->GetBarCurrency();
 
     //init order manager
     _oManager = new OrderManager(db, customerScanner);
