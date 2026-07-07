@@ -17,7 +17,7 @@ private:
 
 public:
     Bartender(QString pesel);
-    Bartender(){db = DatabaseConnector::GetInstance();}
+    Bartender(){_oManager = NULL; db = DatabaseConnector::GetInstance();}
     ~Bartender();
 
     void SetName();

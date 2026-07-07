@@ -39,7 +39,7 @@ public:
     QString GetBartenderName(QString number);
     QString GetBartenderSurame(QString number);
 
-    QList<Product>* GetProductsFromBill(QString billNumber);
+    QList<Product> GetProductsFromBill(QString billNumber);
     QList<Order> GetOrders(QString bartenderNumber);
 
     QString GetRandomCustomerID();

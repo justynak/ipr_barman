@@ -5,7 +5,10 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    _bartender(NULL),
+    _loginWindow(NULL),
+    _editWindow(NULL)
 {
     ui->setupUi(this);
 

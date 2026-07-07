@@ -116,7 +116,7 @@ QString DatabaseConnector::GetBartenderSurame(QString number)
     return surname;
 }
 
-QList<Product>* DatabaseConnector::GetProductsFromBill(QString billNumber)
+QList<Product> DatabaseConnector::GetProductsFromBill(QString billNumber)
 {
     QSqlQuery q;
     QString command = QObject::tr("select product_name, quantity "
@@ -124,7 +124,7 @@ QList<Product>* DatabaseConnector::GetProductsFromBill(QString billNumber)
                                   "where order_number =%1").arg(billNumber);
     q.exec(command);
 
-    QList<Product>* list = new QList<Product>;
+    QList<Product> list;
 
     while(q.next())
     {   //nazwa, l szt, cena
@@ -141,7 +141,7 @@ QList<Product>* DatabaseConnector::GetProductsFromBill(QString billNumber)
 
         p.SetPrice(price);
 
-        list->append(p);
+        list.append(p);
     }
 
     return list;
@@ -303,8 +303,7 @@ bool DatabaseConnector::CreateOrder(QString bartenderNumber, Order* newOrder)
         command = QString("SELECT MAX(order_number) FROM customer_order");
         query.exec(command);
         query.first();
-        QString *number = new QString(query.value(0).toString());
-        newOrder->SetOrderNumber(*number);
+        newOrder->SetOrderNumber(query.value(0).toString());
     }
     return ok;
 }

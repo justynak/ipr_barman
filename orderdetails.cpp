@@ -1,9 +1,10 @@
 #include "orderdetails.h"
-#define DISCOUNT 0.1
 
 OrderDetails::OrderDetails()
 {
-
+    _order = NULL;
+    _cost = 0.00;
+    _discount = 0.0;
 }
 
 OrderDetails::OrderDetails(Order *o)
@@ -12,31 +13,35 @@ OrderDetails::OrderDetails(Order *o)
     _cost = 0.00;
     _discount = 0.0;
 
-    QList<Product>list =  *(_order->GetProductList());
+    RecalculateCost();
 
-    foreach(Product p, list)
-    {
-        _cost += p.GetNumber() * p.GetPrice();
-    }
-
-    if(_order->GetCustomerID() != "" || _order->GetCustomerID() != "")
-        _discount = DISCOUNT;
+    if(_order->GetCustomerID() != "")
+        _discount = LOYAL_CUSTOMER_DISCOUNT;
 }
 
-OrderDetails::~OrderDetails()
+QList<Product> OrderDetails::GetProductList()
 {
+    if(_order == NULL)
+        return QList<Product>();
+    return _order->GetProductList();
+}
 
+QString OrderDetails::GetOrderNumber()
+{
+    if(_order == NULL)
+        return QString("");
+    return _order->GetOrderNumber();
 }
 
 void OrderDetails::RecalculateCost()
 {
     _cost = 0.00;
 
-    QList<Product>list =  *(_order->GetProductList());
+    if(_order == NULL)
+        return;
 
-    foreach(Product p, list)
+    foreach(Product p, _order->GetProductList())
     {
         _cost += p.GetNumber() * p.GetPrice();
     }
 }
-

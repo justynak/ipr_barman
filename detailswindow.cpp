@@ -19,9 +19,9 @@ DetailsWindow::DetailsWindow(OrderDetails *o, QWidget *parent) :
     ui->table_costs->setHorizontalHeaderLabels(a);
 
 
-    QList<Product>* list = _details->GetProductList();
+    QList<Product> list = _details->GetProductList();
 
-    for(int i=0; i<list->count(); ++i)
+    for(int i=0; i<list.count(); ++i)
     {
         QTableWidgetItem* item[3];
         for(int k=0; k<3; ++k)
@@ -30,7 +30,7 @@ DetailsWindow::DetailsWindow(OrderDetails *o, QWidget *parent) :
             item[k]->setFlags(item[k]->flags() ^ Qt::ItemIsEditable);
         }
 
-        Product p = list->at(i);
+        Product p = list.at(i);
 
         ui->table_costs->insertRow(i);
         item[0]->setText(p.GetName());
@@ -46,10 +46,7 @@ DetailsWindow::DetailsWindow(OrderDetails *o, QWidget *parent) :
     ui->label_bill_number->setText(tr("Numer rachunku: %1").arg(_details->GetOrderNumber()));
     ui->label_value->setText(tr("%1 zł").arg(_details->GetCost()));
 
-    double discount = _details->GetDiscount();
-    double priceReduction = 1.00 - discount;
-    double discounted = _details->GetCost() * priceReduction;
-    ui->labelDiscount->setText(tr("%1 zł").arg(discounted));
+    ui->labelDiscount->setText(tr("%1 zł").arg(_details->GetDiscountedCost()));
 
 }
 
