@@ -5,9 +5,13 @@
  *   #fffdf5  ivory        — fields, tables, "cards"
  *   #4d1d14  espresso     — text, hairlines, table headers
  *   #003300  bottle green — primary buttons, selection, login canvas
+ *   #b8860b  muted gold   — second accent, reserved for callouts (discount)
  * Hover/pressed greens are derived shades; translucent espresso is used for
  * hairlines. Secondary/destructive actions are espresso-outlined ghosts so
- * the one solid green button per screen reads as the primary action.
+ * the one solid green button per screen reads as the primary action. Gold
+ * is spent sparingly — one callout value per screen, never on interactive
+ * chrome — so it keeps its "special" weight instead of becoming a third
+ * button color.
  *
  * Only font-family is set app-wide: per-widget point sizes from the .ui
  * files (headings at 32pt etc.) must survive, and a stylesheet font-size on
@@ -69,6 +73,13 @@ QPushButton#button_discard:pressed, QPushButton#button_delete_bill:pressed {
     color: #fff2cc;
 }
 
+/* --- Callouts: gold, reserved for values worth a second glance --- */
+
+QLabel#labelDiscount {
+    color: #b8860b;
+    font-weight: bold;
+}
+
 /* --- Login screen: full-bleed bottle green, speakeasy style --- */
 
 QWidget#LoginWindow {
@@ -116,6 +127,71 @@ QComboBox QAbstractItemView {
     border: 1px solid #4d1d14;
     selection-background-color: #003300;
     selection-color: #fff2cc;
+}
+
+QLineEdit, QAbstractSpinBox {
+    background-color: #fffdf5;
+    border: 1px solid #4d1d14;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 16px;
+    selection-background-color: #003300;
+    selection-color: #fff2cc;
+}
+QLineEdit:hover, QAbstractSpinBox:hover,
+QLineEdit:focus, QAbstractSpinBox:focus {
+    border: 2px solid #003300;
+    padding: 7px 13px;
+}
+QLineEdit:disabled, QAbstractSpinBox:disabled {
+    color: rgba(77, 29, 20, 45%);
+    background-color: rgba(255, 253, 245, 60%);
+}
+QAbstractSpinBox::up-button, QAbstractSpinBox::down-button {
+    border: none;
+    width: 20px;
+}
+
+/* --- Checkboxes / radio buttons: bottle-green fill when checked --- */
+
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #4d1d14;
+    background-color: #fffdf5;
+}
+QCheckBox::indicator {
+    border-radius: 5px;
+}
+QRadioButton::indicator {
+    border-radius: 9px;
+}
+QCheckBox::indicator:hover, QRadioButton::indicator:hover {
+    border-color: #003300;
+}
+QCheckBox::indicator:checked, QRadioButton::indicator:checked {
+    background-color: #003300;
+    border-color: #003300;
+}
+
+/* --- Menus / message boxes: same ivory card as tables --- */
+
+QMenu, QMessageBox {
+    background-color: #fffdf5;
+    border: 1px solid #4d1d14;
+}
+QMenu::item {
+    padding: 8px 24px;
+    color: #4d1d14;
+}
+QMenu::item:selected {
+    background-color: #003300;
+    color: #fff2cc;
+}
+QMenu::separator {
+    height: 1px;
+    background: rgba(77, 29, 20, 15%);
+    margin: 4px 8px;
 }
 
 /* --- Tables: ivory cards, horizontal hairlines only --- */
